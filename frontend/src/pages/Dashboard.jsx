@@ -131,6 +131,14 @@ function Dashboard() {
     await loadData();
   }
 
+  function handleReceiptChange(updatedExpense) {
+    setExpenses((current) =>
+      current.map((expense) =>
+        expense._id === updatedExpense._id ? updatedExpense : expense,
+      ),
+    );
+  }
+
   async function handleBaseCurrencyChange(event) {
     const next = event.target.value;
     setBaseCurrency(next);
@@ -208,6 +216,7 @@ function Dashboard() {
               expenses={expenses}
               baseCurrency={baseCurrency}
               onDelete={handleExpenseDeleted}
+              onReceiptChange={handleReceiptChange}
               anomalyIds={new Set(anomalies.map((anomaly) => anomaly.id))}
               recurringIds={
                 new Set(

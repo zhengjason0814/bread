@@ -1,5 +1,6 @@
 import { formatMoney, formatSignedMoney } from '../currencies'
 import { isSpend } from '../categories'
+import ReceiptCell from './ReceiptCell'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString('en-US', {
@@ -21,7 +22,7 @@ function isFutureDate(isoString) {
   return isoString.slice(0, 10) > localTodayISO()
 }
 
-function ExpenseList({ expenses, baseCurrency, onDelete, anomalyIds, recurringIds }) {
+function ExpenseList({ expenses, baseCurrency, onDelete, onReceiptChange, anomalyIds, recurringIds }) {
   if (expenses.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center text-slate-500">
@@ -62,6 +63,7 @@ function ExpenseList({ expenses, baseCurrency, onDelete, anomalyIds, recurringId
               <th className="px-6 py-3 font-medium">Category</th>
               <th className="px-6 py-3 font-medium">Note</th>
               <th className="px-6 py-3 font-medium text-right">Amount</th>
+              <th className="px-6 py-3 font-medium">Receipt</th>
               <th className="px-6 py-3"></th>
             </tr>
           </thead>
@@ -126,6 +128,9 @@ function ExpenseList({ expenses, baseCurrency, onDelete, anomalyIds, recurringId
                         : 'no rate'}
                     </div>
                   )}
+                </td>
+                <td className="px-6 py-3">
+                  <ReceiptCell expense={expense} onReceiptChange={onReceiptChange} />
                 </td>
                 <td className="px-6 py-3 text-right">
                   <button

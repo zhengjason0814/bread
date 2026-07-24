@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import client from '../api/client'
 import { CURRENCIES } from '../currencies'
 import { CATEGORIES, isNoneLikeNote } from '../categories'
+import { ACCEPTED_RECEIPT_TYPES, receiptTypeError, uploadReceipt } from '../receipts'
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -17,6 +18,8 @@ function AddExpenseForm({ onAdded, baseCurrency }) {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [suggestion, setSuggestion] = useState(null)
+  const [receiptFile, setReceiptFile] = useState(null)
+  const receiptInputRef = useRef(null)
 
   useEffect(() => {
     if (!note.trim() || category) {
@@ -61,13 +64,25 @@ function AddExpenseForm({ onAdded, baseCurrency }) {
         note,
         type,
       })
-      onAdded(response.data.expense)
+      let finalExpense = response.data.expense
+      if (receiptFile) {
+        try {
+          finalExpense = await uploadReceipt(finalExpense._id, receiptFile)
+        } catch (err) {
+          setError(err.response?.data?.error ?? 'Expense added, but the receipt failed to upload')
+        }
+      }
+      onAdded(finalExpense)
       setType('expense')
       setAmount('')
       setCurrency(baseCurrency)
       setCategory('')
       setDate(todayISO())
       setNote('')
+      setReceiptFile(null)
+      if (receiptInputRef.current) {
+        receiptInputRef.current.value = ''
+      }
       setSuggestion(null)
     } catch (err) {
       setError(err.response?.data?.error ?? 'Could not add expense')
@@ -181,6 +196,32 @@ function AddExpenseForm({ onAdded, baseCurrency }) {
             onChange={(e) => setNote(e.target.value)}
             className={inputClasses}
           />
+        </label>
+        <label className="block">
+          <span className="text-sm text-slate-600">Receipt (optional)</span>
+          <input
+            type="file"
+            ref={receiptInputRef}
+            accept={ACCEPTED_RECEIPT_TYPES.join(',')}
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null
+              if (file) {
+                const message = receiptTypeError(file)
+                if (message) {
+                  setError(message)
+                  setReceiptFile(null)
+                  e.target.value = ''
+                  return
+                }
+              }
+              setError('')
+              setReceiptFile(file)
+            }}
+            className="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-brand-700 hover:file:bg-brand-100"
+          />
+          {receiptFile && (
+            <span className="mt-1 block text-xs text-slate-500 truncate">{receiptFile.name}</span>
+          )}
         </label>
       </div>
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
