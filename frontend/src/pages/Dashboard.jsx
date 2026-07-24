@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import client from "../api/client";
 import { clearToken } from "../auth";
 import { CURRENCIES } from "../currencies";
@@ -21,6 +21,7 @@ function Dashboard() {
   const [prediction, setPrediction] = useState(null);
   const [anomalies, setAnomalies] = useState([]);
   const [baseCurrency, setBaseCurrency] = useState("USD");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [budgets, setBudgets] = useState({});
   const [recurring, setRecurring] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,7 @@ function Dashboard() {
         client.get("/insights/recurring").catch(() => null),
       ]);
       setBaseCurrency(meResponse.data.user.baseCurrency);
+      setIsAdmin(meResponse.data.user.isAdmin ?? false);
       setBudgets(meResponse.data.user.budgets ?? {});
       setExpenses(expensesResponse.data.expenses);
       setAccounts(accountsResponse.data.accounts);
@@ -156,6 +158,11 @@ function Dashboard() {
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-700">Fundy</h1>
         <div className="flex items-center gap-4">
+          {isAdmin && (
+            <Link to="/admin" className="text-sm text-brand-700 hover:text-brand-800">
+              Admin
+            </Link>
+          )}
           <label className="flex items-center gap-2 text-sm text-slate-500">
             Home currency
             <select
