@@ -8,7 +8,10 @@ jest.mock('../config/plaid', () => ({
   itemRemove: jest.fn(),
 }))
 
+jest.mock('../services/receiptStorage')
+
 const plaidClient = require('../config/plaid')
+const receiptStorage = require('../services/receiptStorage')
 const app = require('../app')
 
 async function signupAndGetToken(email) {
@@ -70,6 +73,13 @@ beforeEach(() => {
     },
   })
   plaidClient.itemRemove.mockResolvedValue({ data: { removed: true } })
+
+  receiptStorage.ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+  receiptStorage.buildKey.mockReturnValue('receipts/u/e/plaid.jpg')
+  receiptStorage.putReceipt.mockResolvedValue()
+  receiptStorage.deleteReceipt.mockResolvedValue()
+  receiptStorage.getPresignedViewUrl.mockResolvedValue('https://signed.example/receipt')
+
   plaidClient.transactionsSync.mockResolvedValue({
     data: {
       added: [outflowTransaction, inflowTransaction],
@@ -360,5 +370,27 @@ describe('DELETE /api/plaid/items/:id', () => {
     )
 
     expect(response.status).toBe(404)
+  })
+
+  it('deletes the S3 object for an attached receipt when the item is disconnected', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    await link(token)
+
+    const expenses = await authed(request(app).get('/api/expenses'), token)
+    const plaidExpense = expenses.body.expenses.find((expense) => expense.source === 'plaid')
+
+    await authed(request(app).post(`/api/expenses/${plaidExpense._id}/receipt`), token).attach(
+      'receipt',
+      Buffer.from('x'),
+      { filename: 'r.jpg', contentType: 'image/jpeg' }
+    )
+
+    const accounts = await authed(request(app).get('/api/accounts'), token)
+    const itemId = accounts.body.accounts[0].item._id
+
+    const response = await authed(request(app).delete(`/api/plaid/items/${itemId}`), token)
+
+    expect(response.status).toBe(200)
+    expect(receiptStorage.deleteReceipt).toHaveBeenCalledWith('receipts/u/e/plaid.jpg')
   })
 })
