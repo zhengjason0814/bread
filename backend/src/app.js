@@ -6,6 +6,7 @@ const plaidRoutes = require('./routes/plaid')
 const accountRoutes = require('./routes/accounts')
 const insightRoutes = require('./routes/insights')
 const budgetRoutes = require('./routes/budgets')
+const adminRoutes = require('./routes/admin')
 
 const app = express()
 app.use(cors())
@@ -21,5 +22,6 @@ app.use('/api/plaid', plaidRoutes)
 app.use('/api/accounts', accountRoutes)
 app.use('/api/insights', insightRoutes)
 app.use('/api/budgets', budgetRoutes)
+app.use('/api/admin', adminRoutes)
 
 module.exports = app

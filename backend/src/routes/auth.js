@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
+const { isAdminEmail } = require('../services/adminAccess')
 
 const router = express.Router()
 
@@ -44,7 +45,12 @@ router.post('/login', async (req, res) => {
 
 router.get('/me', requireAuth, async (req, res) => {
   const user = await User.findById(req.userId).select('email baseCurrency budgets createdAt')
-  res.json({ user })
+  if (!user) {
+    return res.status(401).json({ error: 'Missing or invalid token' })
+  }
+  const userJSON = user.toJSON()
+  userJSON.isAdmin = isAdminEmail(user.email)
+  res.json({ user: userJSON })
 })
 
 router.patch('/me', requireAuth, async (req, res) => {
