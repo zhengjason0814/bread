@@ -5,6 +5,19 @@ const PlaidItem = require('../models/PlaidItem')
 const Account = require('../models/Account')
 const Expense = require('../models/Expense')
 const { mapPlaidCategory } = require('../services/plaidCategoryMap')
+const receiptStorage = require('../services/receiptStorage')
+
+async function deleteReceiptsForExpenses(filter) {
+  const expenses = await Expense.find({ ...filter, receipt: { $exists: true } })
+    .select('receipt')
+    .lean()
+  for (const expense of expenses) {
+    try {
+      await receiptStorage.deleteReceipt(expense.receipt.key)
+    } catch {
+    }
+  }
+}
 
 const router = express.Router()
 router.use(requireAuth)
@@ -70,6 +83,7 @@ async function syncItem(item) {
 
   const removedIds = removed.map((transaction) => transaction.transaction_id)
   if (removedIds.length > 0) {
+    await deleteReceiptsForExpenses({ plaidTransactionId: { $in: removedIds } })
     await Expense.deleteMany({ plaidTransactionId: { $in: removedIds } })
   }
 
@@ -165,6 +179,7 @@ router.delete('/items/:id', async (req, res) => {
   const accounts = await Account.find({ item: item._id })
   const accountIds = accounts.map((account) => account._id)
 
+  await deleteReceiptsForExpenses({ account: { $in: accountIds } })
   const expenseResult = await Expense.deleteMany({ account: { $in: accountIds } })
   await Account.deleteMany({ item: item._id })
   await item.deleteOne()

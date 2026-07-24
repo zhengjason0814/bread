@@ -1,10 +1,41 @@
 const express = require('express')
+const multer = require('multer')
 const Expense = require('../models/Expense')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
 const { convertExpenses } = require('../services/exchangeRates')
 const { CATEGORIES } = require('../constants/categories')
 const { TRANSACTION_TYPES } = require('../constants/transactionTypes')
+const receiptStorage = require('../services/receiptStorage')
+
+const MAX_RECEIPT_BYTES = 5 * 1024 * 1024
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_RECEIPT_BYTES },
+  fileFilter: (req, file, cb) => {
+    if (receiptStorage.ACCEPTED_TYPES.includes(file.mimetype)) return cb(null, true)
+    const error = new Error('Unsupported receipt type')
+    error.code = 'UNSUPPORTED_TYPE'
+    cb(error)
+  },
+})
+
+function receiptUpload(req, res, next) {
+  upload.single('receipt')(req, res, (err) => {
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'Receipt must be 5 MB or smaller' })
+    }
+    if (err && err.code === 'UNSUPPORTED_TYPE') {
+      return res.status(400).json({ error: 'Receipt must be a JPEG, PNG, WebP, or PDF' })
+    }
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: 'Invalid receipt upload' })
+    }
+    if (err) return next(err)
+    next()
+  })
+}
 
 const router = express.Router()
 router.use(requireAuth)
@@ -55,6 +86,13 @@ router.delete('/:id', async (req, res) => {
     return res.status(404).json({ error: 'Expense not found' })
   }
 
+  if (deleted.receipt) {
+    try {
+      await receiptStorage.deleteReceipt(deleted.receipt.key)
+    } catch {
+    }
+  }
+
   res.json({ deleted: deleted._id })
 })
 
@@ -70,6 +108,69 @@ router.post('/:id/dismiss-anomaly', async (req, res) => {
   }
 
   res.json({ expense: updated })
+})
+
+router.post('/:id/receipt', receiptUpload, async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'A receipt file (JPEG, PNG, WebP, or PDF) is required' })
+  }
+
+  const expense = await Expense.findOne({ _id: req.params.id, user: req.userId })
+  if (!expense) {
+    return res.status(404).json({ error: 'Expense not found' })
+  }
+
+  const previousKey = expense.receipt?.key
+  const key = receiptStorage.buildKey(req.userId, expense._id, req.file.mimetype)
+  await receiptStorage.putReceipt(req.file.buffer, key, req.file.mimetype)
+
+  expense.receipt = {
+    key,
+    filename: req.file.originalname,
+    contentType: req.file.mimetype,
+    size: req.file.size,
+    uploadedAt: new Date(),
+  }
+  await expense.save()
+
+  if (previousKey) {
+    try {
+      await receiptStorage.deleteReceipt(previousKey)
+    } catch {
+    }
+  }
+
+  const user = await User.findById(req.userId).select('baseCurrency')
+  const [converted] = await convertExpenses([expense.toObject()], user.baseCurrency)
+  res.status(200).json({ expense: converted })
+})
+
+router.get('/:id/receipt', async (req, res) => {
+  const expense = await Expense.findOne({ _id: req.params.id, user: req.userId })
+  if (!expense || !expense.receipt) {
+    return res.status(404).json({ error: 'Receipt not found' })
+  }
+  const url = await receiptStorage.getPresignedViewUrl(expense.receipt.key)
+  res.json({ url })
+})
+
+router.delete('/:id/receipt', async (req, res) => {
+  const expense = await Expense.findOne({ _id: req.params.id, user: req.userId })
+  if (!expense || !expense.receipt) {
+    return res.status(404).json({ error: 'Receipt not found' })
+  }
+
+  await receiptStorage.deleteReceipt(expense.receipt.key)
+
+  const updated = await Expense.findByIdAndUpdate(
+    expense._id,
+    { $unset: { receipt: '' } },
+    { returnDocument: 'after' }
+  ).lean()
+
+  const user = await User.findById(req.userId).select('baseCurrency')
+  const [converted] = await convertExpenses([updated], user.baseCurrency)
+  res.json({ expense: converted })
 })
 
 module.exports = router
