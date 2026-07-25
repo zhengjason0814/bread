@@ -7,6 +7,7 @@ const accountRoutes = require('./routes/accounts')
 const insightRoutes = require('./routes/insights')
 const budgetRoutes = require('./routes/budgets')
 const adminRoutes = require('./routes/admin')
+const demoRoutes = require('./routes/demo')
 
 const app = express()
 app.use(cors())
@@ -23,5 +24,6 @@ app.use('/api/accounts', accountRoutes)
 app.use('/api/insights', insightRoutes)
 app.use('/api/budgets', budgetRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/demo', demoRoutes)
 
 module.exports = app

@@ -44,7 +44,7 @@ router.post('/login', async (req, res) => {
 })
 
 router.get('/me', requireAuth, async (req, res) => {
-  const user = await User.findById(req.userId).select('email baseCurrency budgets createdAt')
+  const user = await User.findById(req.userId).select('email baseCurrency budgets createdAt isDemo')
   if (!user) {
     return res.status(401).json({ error: 'Missing or invalid token' })
   }

@@ -3,6 +3,7 @@ const multer = require('multer')
 const Expense = require('../models/Expense')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
+const { blockDemo } = require('../middleware/demoGuards')
 const { convertExpenses } = require('../services/exchangeRates')
 const { CATEGORIES } = require('../constants/categories')
 const { TRANSACTION_TYPES } = require('../constants/transactionTypes')
@@ -110,7 +111,7 @@ router.post('/:id/dismiss-anomaly', async (req, res) => {
   res.json({ expense: updated })
 })
 
-router.post('/:id/receipt', receiptUpload, async (req, res) => {
+router.post('/:id/receipt', blockDemo, receiptUpload, async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'A receipt file (JPEG, PNG, WebP, or PDF) is required' })
   }

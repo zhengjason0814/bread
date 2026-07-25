@@ -1,6 +1,7 @@
 const express = require('express')
 const plaidClient = require('../config/plaid')
 const requireAuth = require('../middleware/auth')
+const { blockDemo } = require('../middleware/demoGuards')
 const PlaidItem = require('../models/PlaidItem')
 const Account = require('../models/Account')
 const Expense = require('../models/Expense')
@@ -21,6 +22,7 @@ async function deleteReceiptsForExpenses(filter) {
 
 const router = express.Router()
 router.use(requireAuth)
+router.use(blockDemo)
 
 async function syncItem(item) {
   const accounts = await Account.find({ item: item._id })

@@ -10,6 +10,7 @@ function requireAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
     req.userId = payload.userId
+    req.isDemo = payload.isDemo === true
     next()
   } catch {
     res.status(401).json({ error: 'Missing or invalid token' })

@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     baseCurrency: { type: String, default: 'USD', uppercase: true, trim: true },
     budgets: { type: Map, of: Number, default: {} },
+    isDemo: { type: Boolean, default: false },
+    demoCreatedAt: { type: Date },
   },
   { timestamps: true }
 )
