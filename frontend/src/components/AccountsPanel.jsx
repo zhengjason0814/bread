@@ -17,7 +17,7 @@ function groupByConnection(accounts) {
   return Array.from(groups.values())
 }
 
-function AccountsPanel({ accounts, onConnected, onSync, onDisconnect, syncing }) {
+function AccountsPanel({ accounts, onConnected, onSync, onDisconnect, syncing, isDemo }) {
   const groups = groupByConnection(accounts)
 
   function handleDisconnect(group) {
@@ -36,17 +36,28 @@ function AccountsPanel({ accounts, onConnected, onSync, onDisconnect, syncing })
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
         <h2 className="text-lg font-medium text-ink">Accounts</h2>
         <div className="flex items-center gap-2">
-          {accounts.length > 0 && (
-            <button
-              type="button"
-              onClick={onSync}
-              disabled={syncing}
-              className="rounded-lg border border-slate-300 text-slate-700 text-sm font-medium px-4 py-2 hover:bg-slate-50 disabled:opacity-50"
+          {isDemo ? (
+            <span
+              className="text-sm text-slate-400"
+              title="Sign up to connect a bank"
             >
-              {syncing ? 'Syncing…' : 'Sync'}
-            </button>
+              Sync &amp; connect disabled in demo
+            </span>
+          ) : (
+            <>
+              {accounts.length > 0 && (
+                <button
+                  type="button"
+                  onClick={onSync}
+                  disabled={syncing}
+                  className="rounded-lg border border-slate-300 text-slate-700 text-sm font-medium px-4 py-2 hover:bg-slate-50 disabled:opacity-50"
+                >
+                  {syncing ? 'Syncing…' : 'Sync'}
+                </button>
+              )}
+              <ConnectBank onConnected={onConnected} />
+            </>
           )}
-          <ConnectBank onConnected={onConnected} />
         </div>
       </div>
 
@@ -60,13 +71,15 @@ function AccountsPanel({ accounts, onConnected, onSync, onDisconnect, syncing })
             <div key={group.itemId} className="px-6 py-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-ink">{group.institutionName}</span>
-                <button
-                  type="button"
-                  onClick={() => handleDisconnect(group)}
-                  className="text-xs text-slate-400 hover:text-red-600"
-                >
-                  Disconnect
-                </button>
+                {!isDemo && (
+                  <button
+                    type="button"
+                    onClick={() => handleDisconnect(group)}
+                    className="text-xs text-slate-400 hover:text-red-600"
+                  >
+                    Disconnect
+                  </button>
+                )}
               </div>
               <ul className="divide-y divide-slate-100">
                 {group.accounts.map((account) => (

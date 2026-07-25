@@ -7,7 +7,7 @@ import {
   deleteReceipt,
 } from '../receipts'
 
-function ReceiptCell({ expense, onReceiptChange }) {
+function ReceiptCell({ expense, onReceiptChange, isDemo }) {
   const inputRef = useRef(null)
   const [busy, setBusy] = useState(false)
 
@@ -99,6 +99,10 @@ function ReceiptCell({ expense, onReceiptChange }) {
             ✕
           </button>
         </>
+      ) : isDemo ? (
+        <span className="text-slate-300" title="Sign up to upload receipts">
+          📎
+        </span>
       ) : (
         <button
           type="button"

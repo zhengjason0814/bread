@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import { saveToken } from '../auth'
+import { startDemo } from '../demo'
 
 function AuthForm({ title, endpoint, buttonLabel, footer }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const navigate = useNavigate()
 
   async function handleSubmit(event) {
@@ -22,6 +24,20 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
       setError(err.response?.data?.error ?? 'Something went wrong')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleDemo() {
+    setError('')
+    setDemoLoading(true)
+    try {
+      const token = await startDemo()
+      saveToken(token)
+      navigate('/')
+    } catch (err) {
+      setError(err.response?.data?.error ?? 'Could not start the demo')
+    } finally {
+      setDemoLoading(false)
     }
   }
 
@@ -62,6 +78,14 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
             className="w-full rounded-md bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
           >
             {submitting ? 'Please wait…' : buttonLabel}
+          </button>
+          <button
+            type="button"
+            onClick={handleDemo}
+            disabled={demoLoading}
+            className="w-full rounded-md border border-brand-300 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+          >
+            {demoLoading ? 'Starting demo…' : 'Try the demo'}
           </button>
           <p className="text-sm text-slate-500 text-center">
             {footer.text}{' '}

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import client from "../api/client";
-import { clearToken } from "../auth";
+import { clearToken, isDemoSession } from "../auth";
+import { resetDemo, endDemo } from "../demo";
 import { CURRENCIES } from "../currencies";
 import AddExpenseForm from "../components/AddExpenseForm";
 import ExpenseList from "../components/ExpenseList";
@@ -14,6 +15,7 @@ import SpendingTrendCard from "../components/SpendingTrendCard";
 import BudgetsCard from "../components/BudgetsCard";
 import BudgetAlertStrip from "../components/BudgetAlertStrip";
 import RecurringCard from "../components/RecurringCard";
+import DemoBanner from "../components/DemoBanner";
 
 function Dashboard() {
   const [expenses, setExpenses] = useState([]);
@@ -27,6 +29,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [isDemo] = useState(isDemoSession());
+  const [resetting, setResetting] = useState(false);
   const autoSyncStarted = useRef(false);
   const navigate = useNavigate();
 
@@ -77,7 +81,7 @@ function Dashboard() {
 
   useEffect(() => {
     loadData().finally(() => setLoading(false));
-    if (autoSyncStarted.current) return;
+    if (autoSyncStarted.current || isDemo) return;
     autoSyncStarted.current = true;
     syncThenReload().catch(() => {});
   }, [loadData, syncThenReload]);
@@ -148,13 +152,31 @@ function Dashboard() {
     await loadData();
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    if (isDemo) {
+      try {
+        await endDemo();
+      } catch {}
+    }
     clearToken();
     navigate("/login");
   }
 
+  async function handleResetDemo() {
+    setResetting(true);
+    try {
+      await resetDemo();
+      await loadData();
+    } catch {
+      setError("Could not reset the demo");
+    } finally {
+      setResetting(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-surface">
+      {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-brand-700">Fundy</h1>
         <div className="flex items-center gap-4">
@@ -200,6 +222,7 @@ function Dashboard() {
               onSync={handleSync}
               onDisconnect={handleAccountDisconnected}
               syncing={syncing}
+              isDemo={isDemo}
             />
             <AnomalyStrip
               anomalies={anomalies}
@@ -230,6 +253,7 @@ function Dashboard() {
                   (recurring?.series ?? []).flatMap((entry) => entry.expense_ids ?? [])
                 )
               }
+              isDemo={isDemo}
             />
           </>
         )}

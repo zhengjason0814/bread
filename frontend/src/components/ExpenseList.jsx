@@ -22,7 +22,7 @@ function isFutureDate(isoString) {
   return isoString.slice(0, 10) > localTodayISO()
 }
 
-function ExpenseList({ expenses, baseCurrency, onDelete, onReceiptChange, anomalyIds, recurringIds }) {
+function ExpenseList({ expenses, baseCurrency, onDelete, onReceiptChange, anomalyIds, recurringIds, isDemo }) {
   if (expenses.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center text-slate-500">
@@ -130,7 +130,7 @@ function ExpenseList({ expenses, baseCurrency, onDelete, onReceiptChange, anomal
                   )}
                 </td>
                 <td className="px-6 py-3">
-                  <ReceiptCell expense={expense} onReceiptChange={onReceiptChange} />
+                  <ReceiptCell expense={expense} onReceiptChange={onReceiptChange} isDemo={isDemo} />
                 </td>
                 <td className="px-6 py-3 text-right">
                   <button
