@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
+const { authLimiter } = require('../middleware/rateLimit')
 const { isAdminEmail } = require('../services/adminAccess')
+const { clearInsightsCache } = require('../services/insightsCache')
 
 const router = express.Router()
 
@@ -11,7 +13,7 @@ function issueToken(user) {
   return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
 
-router.post('/signup', async (req, res) => {
+router.post('/signup', authLimiter, async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' })
@@ -28,7 +30,7 @@ router.post('/signup', async (req, res) => {
   res.status(201).json({ token: issueToken(user) })
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' })
@@ -64,6 +66,8 @@ router.patch('/me', requireAuth, async (req, res) => {
     { baseCurrency },
     { returnDocument: 'after' }
   ).select('email baseCurrency budgets createdAt')
+
+  await clearInsightsCache(req.userId)
 
   res.json({ user })
 })
