@@ -8,6 +8,7 @@ const { convertExpenses } = require('../services/exchangeRates')
 const { CATEGORIES } = require('../constants/categories')
 const { TRANSACTION_TYPES } = require('../constants/transactionTypes')
 const receiptStorage = require('../services/receiptStorage')
+const { clearInsightsCache } = require('../services/insightsCache')
 
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024
 
@@ -64,6 +65,8 @@ router.post('/', async (req, res) => {
     type,
   })
 
+  await clearInsightsCache(req.userId)
+
   const user = await User.findById(req.userId).select('baseCurrency')
   const [expense] = await convertExpenses([created], user.baseCurrency)
 
@@ -87,6 +90,8 @@ router.delete('/:id', async (req, res) => {
     return res.status(404).json({ error: 'Expense not found' })
   }
 
+  await clearInsightsCache(req.userId)
+
   if (deleted.receipt) {
     try {
       await receiptStorage.deleteReceipt(deleted.receipt.key)
@@ -107,6 +112,8 @@ router.post('/:id/dismiss-anomaly', async (req, res) => {
   if (!updated) {
     return res.status(404).json({ error: 'Expense not found' })
   }
+
+  await clearInsightsCache(req.userId)
 
   res.json({ expense: updated })
 })

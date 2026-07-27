@@ -7,6 +7,7 @@ const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
 const { requireDemo } = require('../middleware/demoGuards')
 const { seedDemoUser, clearDemoUserData } = require('../services/demoData')
+const { clearInsightsCache } = require('../services/insightsCache')
 
 const router = express.Router()
 
@@ -56,6 +57,7 @@ router.post('/', demoLimiter, async (req, res) => {
 router.post('/reset', requireAuth, requireDemo, async (req, res) => {
   await clearDemoUserData(req.userId)
   await seedDemoUser(req.userId)
+  await clearInsightsCache(req.userId)
   res.json({ ok: true })
 })
 

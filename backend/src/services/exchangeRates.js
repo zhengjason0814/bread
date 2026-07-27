@@ -1,4 +1,7 @@
-const rateTableCache = new Map()
+const cache = require('./cache')
+
+const PAST_TTL_SECONDS = 60 * 60 * 24 * 30
+const TODAY_TTL_SECONDS = 60 * 60
 
 function toRateDate(date) {
   const requested = new Date(date)
@@ -8,9 +11,10 @@ function toRateDate(date) {
 }
 
 async function getRateTable(base, date) {
-  const key = `${date}:${base}`
-  if (rateTableCache.has(key)) {
-    return rateTableCache.get(key)
+  const key = `fx:${base}:${date}`
+  const cached = await cache.getJson(key)
+  if (cached) {
+    return cached
   }
 
   let rates = null
@@ -25,7 +29,9 @@ async function getRateTable(base, date) {
   }
 
   if (rates) {
-    rateTableCache.set(key, rates)
+    const today = new Date().toISOString().slice(0, 10)
+    const ttl = date === today ? TODAY_TTL_SECONDS : PAST_TTL_SECONDS
+    await cache.setJson(key, rates, ttl)
   }
   return rates
 }
@@ -79,8 +85,8 @@ async function convertAccountBalances(accounts, baseCurrency) {
   return converted
 }
 
-function __clearCache() {
-  rateTableCache.clear()
+async function __clearCache() {
+  await cache.__flush()
 }
 
 module.exports = { convertExpenses, convertAccountBalances, __clearCache }

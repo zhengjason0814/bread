@@ -209,6 +209,81 @@ describe('GET /api/insights/suggest-category', () => {
   })
 })
 
+describe('insight caching', () => {
+  test('prediction is a MISS then a HIT', async () => {
+    mlClient.predict.mockResolvedValue({
+      status: 'ok',
+      current_month: { low: 100, mid: 150, high: 200, spent_so_far: 50 },
+      next_month: { low: 90, mid: 140, high: 210 },
+    })
+    const token = await signupAndGetToken()
+
+    const first = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(first.status).toBe(200)
+    expect(first.headers['x-cache']).toBe('MISS')
+
+    const second = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(second.status).toBe(200)
+    expect(second.headers['x-cache']).toBe('HIT')
+    expect(second.body).toEqual(first.body)
+  })
+
+  test('adding an expense busts the prediction cache', async () => {
+    mlClient.predict.mockResolvedValue({
+      status: 'ok',
+      current_month: { low: 100, mid: 150, high: 200, spent_so_far: 50 },
+      next_month: { low: 90, mid: 140, high: 210 },
+    })
+    const token = await signupAndGetToken()
+
+    await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    const hit = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(hit.headers['x-cache']).toBe('HIT')
+
+    await createExpense(token)
+
+    const afterChange = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(afterChange.headers['x-cache']).toBe('MISS')
+  })
+
+  test('changing base currency busts the prediction cache', async () => {
+    mlClient.predict.mockResolvedValue({
+      status: 'ok',
+      current_month: { low: 100, mid: 150, high: 200, spent_so_far: 50 },
+      next_month: { low: 90, mid: 140, high: 210 },
+    })
+    const token = await signupAndGetToken()
+
+    await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    const hit = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(hit.headers['x-cache']).toBe('HIT')
+
+    await request(app)
+      .patch('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ baseCurrency: 'EUR' })
+
+    const afterChange = await request(app)
+      .get('/api/insights/prediction')
+      .set('Authorization', `Bearer ${token}`)
+    expect(afterChange.headers['x-cache']).toBe('MISS')
+  })
+})
+
 describe('GET /api/insights/recurring', () => {
   it('relays series and adds baseCurrency', async () => {
     mlClient.detectRecurring.mockResolvedValue({

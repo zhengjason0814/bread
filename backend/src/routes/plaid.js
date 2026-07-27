@@ -7,6 +7,7 @@ const Account = require('../models/Account')
 const Expense = require('../models/Expense')
 const { mapPlaidCategory } = require('../services/plaidCategoryMap')
 const receiptStorage = require('../services/receiptStorage')
+const { clearInsightsCache } = require('../services/insightsCache')
 
 async function deleteReceiptsForExpenses(filter) {
   const expenses = await Expense.find({ ...filter, receipt: { $exists: true } })
@@ -152,6 +153,7 @@ router.post('/exchange', async (req, res) => {
   )
 
   const summary = await syncItem(item)
+  await clearInsightsCache(req.userId)
   res.status(201).json({ accounts: accountsResponse.data.accounts.length, ...summary })
 })
 
@@ -166,6 +168,8 @@ router.post('/sync', async (req, res) => {
     totals.removed += summary.removed
     totals.imported += summary.imported
   }
+
+  await clearInsightsCache(req.userId)
 
   res.json(totals)
 })
@@ -185,6 +189,8 @@ router.delete('/items/:id', async (req, res) => {
   const expenseResult = await Expense.deleteMany({ account: { $in: accountIds } })
   await Account.deleteMany({ item: item._id })
   await item.deleteOne()
+
+  await clearInsightsCache(req.userId)
 
   res.json({ accountsRemoved: accountIds.length, expensesRemoved: expenseResult.deletedCount })
 })

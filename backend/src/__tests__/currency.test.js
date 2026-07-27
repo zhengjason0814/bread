@@ -18,8 +18,8 @@ function authed(req, token) {
   return req.set('Authorization', `Bearer ${token}`)
 }
 
-beforeEach(() => {
-  __clearCache()
+beforeEach(async () => {
+  await __clearCache()
   global.fetch = jest.fn(async (url) => {
     const base = new URL(url).searchParams.get('base')
     return {

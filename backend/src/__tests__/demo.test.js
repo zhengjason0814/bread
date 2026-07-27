@@ -2,6 +2,8 @@ const request = require('supertest')
 const jwt = require('jsonwebtoken')
 const app = require('../app')
 const User = require('../models/User')
+const cache = require('../services/cache')
+const { insightsKey } = require('../services/insightsCache')
 
 function authed(req, token) {
   return req.set('Authorization', `Bearer ${token}`)
@@ -122,6 +124,17 @@ describe('demo-only routes', () => {
     const reset = await authed(request(app).post('/api/demo/reset'), token)
     expect(reset.status).toBe(200)
     expect(await Expense.countDocuments({ user: userId })).toBeGreaterThan(0)
+  })
+
+  it('reset clears the demo user\'s cached ML insights', async () => {
+    const { token, userId } = await startDemo()
+    await cache.setJson(insightsKey(userId, 'prediction'), { status: 'ok' }, 600)
+    expect(await cache.getJson(insightsKey(userId, 'prediction'))).not.toBeNull()
+
+    const reset = await authed(request(app).post('/api/demo/reset'), token)
+    expect(reset.status).toBe(200)
+
+    expect(await cache.getJson(insightsKey(userId, 'prediction'))).toBeNull()
   })
 
   it('delete removes the demo user and its data', async () => {
