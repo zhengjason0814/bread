@@ -14,6 +14,7 @@ afterEach(async () => {
   for (const collection of collections) {
     await collection.deleteMany({})
   }
+  await require('./src/services/cache').__flush()
 })
 
 afterAll(async () => {
