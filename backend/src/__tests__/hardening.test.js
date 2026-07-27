@@ -1,5 +1,6 @@
 const request = require('supertest')
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
 const app = require('../app')
 const Expense = require('../models/Expense')
 
@@ -26,7 +27,7 @@ describe('app hardening', () => {
     })
     const res = await request(app)
       .get('/api/expenses')
-      .set('Authorization', `Bearer ${tokenFor('507f1f77bcf86cd799439011')}`)
+      .set('Authorization', `Bearer ${tokenFor(new mongoose.Types.ObjectId().toString())}`)
     expect(res.status).toBe(500)
     expect(res.headers['content-type']).toMatch(/json/)
     expect(res.body).toEqual({ error: 'Internal server error' })
