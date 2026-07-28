@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { formatMoney, formatSignedMoney } from '../currencies'
 import { filterByType } from '../breakdown'
+import { isFutureDate } from '../dates'
 import { Table, Th, Td } from '../ui/Table'
 import Tag from '../ui/Tag'
 import Button from '../ui/Button'
@@ -13,17 +14,6 @@ function formatDate(isoString) {
     day: 'numeric',
     timeZone: 'UTC',
   })
-}
-
-function localTodayISO() {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${now.getFullYear()}-${month}-${day}`
-}
-
-function isFutureDate(isoString) {
-  return isoString.slice(0, 10) > localTodayISO()
 }
 
 function ExpenseList({

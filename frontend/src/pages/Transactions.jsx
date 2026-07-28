@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import AddExpenseForm from '../components/AddExpenseForm'
+import AddTransactionDialog from '../components/AddTransactionDialog'
 import ExpenseList from '../components/ExpenseList'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
@@ -53,11 +53,6 @@ function Transactions() {
   )
 
   const shown = filterByType(expenses, filter)
-
-  function handleExpenseAdded(expense) {
-    onExpenseAdded(expense)
-    setAddOpen(false)
-  }
 
   return (
     <main className="px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
@@ -154,7 +149,12 @@ function Transactions() {
           </Card>
 
           {addOpen && (
-            <AddExpenseForm onAdded={handleExpenseAdded} baseCurrency={baseCurrency} />
+            <AddTransactionDialog
+              open={addOpen}
+              onClose={() => setAddOpen(false)}
+              onAdded={onExpenseAdded}
+              baseCurrency={baseCurrency}
+            />
           )}
         </>
       )}

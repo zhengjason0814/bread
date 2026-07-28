@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import AddExpenseForm from '../components/AddExpenseForm'
+import AddTransactionDialog from '../components/AddTransactionDialog'
 import ConnectBank from '../components/ConnectBank'
 import GreetingRow from '../components/GreetingRow'
 import CategoryDonut from '../components/CategoryDonut'
@@ -52,11 +52,6 @@ function Dashboard() {
     (recurring?.series ?? []).flatMap((entry) => entry.expense_ids ?? [])
   )
   const budgetList = budgetStatuses(expenses, budgets)
-
-  function handleExpenseAdded(expense) {
-    onExpenseAdded(expense)
-    setAddOpen(false)
-  }
 
   return (
     <main className="px-[30px] pt-5 pb-[34px] flex flex-col gap-6">
@@ -181,7 +176,14 @@ function Dashboard() {
               </Card>
             </div>
           </div>
-          {addOpen && <AddExpenseForm onAdded={handleExpenseAdded} baseCurrency={baseCurrency} />}
+          {addOpen && (
+            <AddTransactionDialog
+              open={addOpen}
+              onClose={() => setAddOpen(false)}
+              onAdded={onExpenseAdded}
+              baseCurrency={baseCurrency}
+            />
+          )}
 
           <div className="grid grid-cols-3 gap-5 items-start">
             <Card
