@@ -188,9 +188,9 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen flex bg-page text-ink">
+    <div className="h-screen overflow-hidden flex bg-page text-ink">
       <Sidebar expenses={expenses} budgets={budgets} baseCurrency={baseCurrency} />
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col h-screen">
         {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
         <Header
           baseCurrency={baseCurrency}
@@ -198,7 +198,9 @@ function AppLayout() {
           onLogout={handleLogout}
           isAdmin={isAdmin}
         />
-        <Outlet context={context} />
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <Outlet context={context} />
+        </div>
       </div>
     </div>
   )

@@ -56,6 +56,12 @@ export function categoryBreakdown(expenses, monthKey) {
   return { total, slices }
 }
 
+export function filterByType(expenses, filter) {
+  if (filter === 'income') return expenses.filter((expense) => expense.type === 'income')
+  if (filter === 'expense') return expenses.filter((expense) => expense.type !== 'income')
+  return expenses
+}
+
 export function monthTotals(expenses, monthKey) {
   let income = 0
   let spend = 0

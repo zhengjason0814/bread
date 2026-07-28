@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import Button from '../ui/Button'
 import {
   ACCEPTED_RECEIPT_TYPES,
   receiptTypeError,
@@ -61,7 +62,7 @@ function ReceiptCell({ expense, onReceiptChange, isDemo }) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <input
         ref={inputRef}
         type="file"
@@ -71,49 +72,41 @@ function ReceiptCell({ expense, onReceiptChange, isDemo }) {
       />
       {expense.receipt ? (
         <>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             disabled={busy}
             onClick={handleView}
             title={expense.receipt.filename}
             aria-label="View receipt"
-            className="text-slate-500 hover:text-brand-700 disabled:opacity-50"
           >
             📄
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => inputRef.current?.click()}
-            className="text-xs text-slate-400 hover:text-brand-700 disabled:opacity-50"
-          >
+          </Button>
+          <Button variant="ghost" disabled={busy} onClick={() => inputRef.current?.click()}>
             Replace
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="ghost"
             disabled={busy}
             onClick={handleRemove}
             aria-label="Remove receipt"
-            className="text-slate-400 hover:text-red-600 disabled:opacity-50"
           >
             ✕
-          </button>
+          </Button>
         </>
       ) : isDemo ? (
-        <span className="text-slate-300" title="Sign up to upload receipts">
+        <span className="text-ink-faint" title="Sign up to upload receipts">
           📎
         </span>
       ) : (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           disabled={busy}
           onClick={() => inputRef.current?.click()}
-          className="text-slate-400 hover:text-brand-700 disabled:opacity-50"
           title="Attach a receipt"
           aria-label="Attach a receipt"
         >
           📎
-        </button>
+        </Button>
       )}
     </div>
   )
