@@ -336,9 +336,10 @@ function Dashboard() {
                     <MoreHint
                       count={recurring.series.length - RECURRING_LIMIT}
                       noun="recurring charges"
+                      className="pt-0.5"
                     />
                   </div>
-                  <p className="text-[13px] text-ink-secondary mt-1">
+                  <p className="text-[13px] text-ink-secondary">
                     ≈{' '}
                     <strong className="font-semibold text-ink">
                       {formatMoney(recurringMonthlyTotal(recurring.series), baseCurrency)}

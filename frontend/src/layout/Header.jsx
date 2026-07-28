@@ -18,21 +18,23 @@ function Header({ baseCurrency, onBaseCurrencyChange, onLogout, isAdmin, onOpenN
   const { pathname } = useLocation()
 
   return (
-    <header className="sticky top-0 z-30 bg-panel px-4 sm:px-[30px] pt-4 sm:pt-5 pb-4 border-b border-rule flex items-center flex-wrap gap-x-[18px] gap-y-3">
+    <header className="sticky top-0 z-30 bg-panel px-4 sm:px-[30px] py-4 border-b border-rule flex items-center gap-3 sm:gap-[18px]">
       <button
         type="button"
         onClick={onOpenNav}
         aria-label="Open navigation"
         aria-expanded={navOpen}
-        className="text-xl leading-none px-2 py-1 -ml-2 rounded-full cursor-pointer text-ink-nav hover:bg-sand focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 lg:hidden"
+        className="flex-none text-xl leading-none px-2 py-1 -ml-2 rounded-full cursor-pointer text-ink-nav hover:bg-sand focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 lg:hidden"
       >
         ☰
       </button>
-      <h1 className="font-display text-lg sm:text-xl min-w-0 truncate">
+      <h1 className="font-display text-lg sm:text-xl leading-tight min-w-0 flex-1 truncate">
         {TITLES[pathname] ?? 'Dashboard'}
       </h1>
-      <div className="ml-auto flex items-center gap-2.5 sm:gap-3.5">
-        <span className="hidden sm:inline text-[13px] text-ink-secondary">Home currency</span>
+      <div className="flex-none flex items-center gap-2.5 sm:gap-3.5">
+        <span className="hidden sm:inline text-[13px] text-ink-secondary whitespace-nowrap">
+          Home currency
+        </span>
         <Select
           value={baseCurrency}
           onChange={onBaseCurrencyChange}
@@ -46,11 +48,11 @@ function Header({ baseCurrency, onBaseCurrencyChange, onLogout, isAdmin, onOpenN
           ))}
         </Select>
         {isAdmin && (
-          <Link to="/admin" className="text-sm text-accent-link hover:text-accent-deep">
+          <Link to="/admin" className="text-sm text-accent-link hover:text-accent-deep whitespace-nowrap">
             Admin
           </Link>
         )}
-        <Button variant="secondary" onClick={onLogout}>
+        <Button variant="secondary" onClick={onLogout} className="whitespace-nowrap">
           Log out
         </Button>
       </div>
