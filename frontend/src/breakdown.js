@@ -73,3 +73,14 @@ export function monthTotals(expenses, monthKey) {
   }
   return { income, spend, net: income - spend }
 }
+
+export function earliestSpendMonthKey(expenses) {
+  let earliest = null
+  for (const expense of expenses) {
+    if (!isSpend(expense)) continue
+    if (typeof expense.convertedAmount !== 'number') continue
+    const monthKey = String(expense.date).slice(0, 7)
+    if (!earliest || monthKey < earliest) earliest = monthKey
+  }
+  return earliest
+}

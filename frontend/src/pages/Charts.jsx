@@ -7,6 +7,7 @@ import Button from '../ui/Button'
 import {
   categoryBreakdown,
   currentMonthKey,
+  earliestSpendMonthKey,
   monthLabel,
   shiftMonthKey,
 } from '../breakdown'
@@ -47,6 +48,8 @@ function Charts() {
 
   const { total, slices } = categoryBreakdown(expenses, monthKey)
   const atCurrentMonth = monthKey === currentMonthKey()
+  const earliestMonthKey = earliestSpendMonthKey(expenses)
+  const atEarliestMonth = !earliestMonthKey || monthKey <= earliestMonthKey
 
   const months = monthlyTotals(expenses, 6)
   const delta = samePointDelta(expenses)
@@ -76,6 +79,7 @@ function Charts() {
                 <Button
                   variant="ghost"
                   onClick={() => setMonthKey(shiftMonthKey(monthKey, -1))}
+                  disabled={atEarliestMonth}
                   aria-label="Previous month"
                 >
                   ‹
