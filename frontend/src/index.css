@@ -1,18 +1,63 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Caprasimo", Georgia, serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+
+  --color-page: #fdfaf0;
+  --color-panel: #faf6e8;
+  --color-card: #ffffff;
+  --color-sand: #f4eddb;
+  --color-sand-deep: #fdfaf1;
+  --color-track: #eee7db;
+  --color-track-muted: #eddcae;
+
+  --color-ink: #201e1d;
+  --color-ink-secondary: #645c50;
+  --color-ink-muted: #82796a;
+  --color-ink-faint: #a19786;
+  --color-ink-nav: #474238;
+
+  --color-accent: #cd8a36;
+  --color-accent-hover: #b17426;
+  --color-accent-active: #8f5c1c;
+  --color-accent-deep: #95591a;
+  --color-accent-link: #a06c22;
+  --color-accent-100: #fcf2d7;
+  --color-accent-200: #f9e2b4;
+  --color-accent-300: #f2c67e;
+  --color-accent-400: #dfa947;
+
+  --color-sage: #8fa073;
+  --color-sage-light: #ccdbb2;
+  --color-sage-100: #f0fae1;
+  --color-sage-deep: #56633f;
+  --color-sage-darkest: #3d472b;
+
+  --color-rule: rgba(32, 30, 29, 0.1);
+  --color-rule-soft: rgba(32, 30, 29, 0.08);
+
+  --radius-card: 28px;
+  --radius-tile: 26px;
+
+  --shadow-card: 0 1px 2px rgba(46, 43, 37, 0.1);
+  --shadow-lift: 0 12px 32px rgba(46, 43, 37, 0.14);
+
+  --text-label: 11px;
+  --tracking-label: 0.09em;
 
   --color-brand-50: #eff6ff;
   --color-brand-100: #dbeafe;
+  --color-brand-300: #93c5fd;
   --color-brand-500: #3b82f6;
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
-
+  --color-brand-800: #1e40af;
   --color-surface: #f8fafc;
-  --color-ink: #0f172a;
 }
 
 body {
   font-family: var(--font-sans);
+  background: var(--color-page);
+  color: var(--color-ink);
 }
