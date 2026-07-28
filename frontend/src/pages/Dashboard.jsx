@@ -4,7 +4,7 @@ import ExpenseList from "../components/ExpenseList";
 import AccountsPanel from "../components/AccountsPanel";
 import PredictionCard from "../components/PredictionCard";
 import AnomalyStrip from "../components/AnomalyStrip";
-import BalanceCard from "../components/BalanceCard";
+import GreetingRow from "../components/GreetingRow";
 import CategoryBreakdownCard from "../components/CategoryBreakdownCard";
 import SpendingTrendCard from "../components/SpendingTrendCard";
 import BudgetsCard from "../components/BudgetsCard";
@@ -14,6 +14,7 @@ import RecurringCard from "../components/RecurringCard";
 function Dashboard() {
   const { loading, error, ...data } = useOutletContext();
   const {
+    email,
     expenses,
     accounts,
     prediction,
@@ -42,7 +43,13 @@ function Dashboard() {
         <p className="text-accent-deep text-center">{error}</p>
       ) : (
         <>
-          <BalanceCard accounts={accounts} baseCurrency={baseCurrency} />
+          <GreetingRow
+            accounts={accounts}
+            expenses={expenses}
+            budgets={budgets}
+            baseCurrency={baseCurrency}
+            email={email}
+          />
           <AccountsPanel
             accounts={accounts}
             onConnected={reload}

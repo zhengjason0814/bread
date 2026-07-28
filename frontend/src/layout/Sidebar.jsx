@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { safeToSpend } from '../budgets'
 import { formatMoney } from '../currencies'
 import Label from '../ui/Label'
+import BreadMark from '../ui/BreadMark'
 
 const NAV = [
   { to: '/', label: 'Dashboard', end: true },
@@ -20,7 +21,7 @@ function Sidebar({ expenses, budgets, baseCurrency }) {
     <aside className="w-[232px] flex-none bg-panel border-r border-rule px-4 py-[22px] flex flex-col gap-[26px] sticky top-0 h-screen">
       <div className="flex items-center gap-3 px-2.5">
         <div className="w-9 h-9 flex-none rounded-full bg-accent grid place-items-center text-page">
-          <span className="font-display text-lg">B</span>
+          <BreadMark className="w-5 h-5" />
         </div>
         <span className="font-display text-2xl">Bread</span>
       </div>

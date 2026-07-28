@@ -21,3 +21,15 @@ export function safeToSpend(expenses, budgets) {
   const spent = statuses.reduce((sum, status) => sum + status.spent, 0)
   return limit - spent
 }
+
+export function budgetHeadline(expenses, budgets) {
+  const statuses = budgetStatuses(expenses, budgets)
+  if (statuses.length === 0) return 'Set a budget to start tracking your limits.'
+  const over = statuses.find((status) => status.level === 'over')
+  if (over) {
+    return `${over.category} is ${Math.round((over.ratio - 1) * 100)}% over budget — everything else is on track.`
+  }
+  const warn = statuses.find((status) => status.level === 'warn')
+  if (warn) return `${warn.category} is close to its limit — everything else is on track.`
+  return 'Every budget is on track this month.'
+}
