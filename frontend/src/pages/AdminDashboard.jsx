@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import { formatMoney } from '../currencies'
 import { clearToken } from '../auth'
+import Card from '../ui/Card'
+import Button from '../ui/Button'
+import Label from '../ui/Label'
+import { Table, Th, Td } from '../ui/Table'
 
 function formatDate(value) {
   return new Date(value).toLocaleDateString(undefined, { timeZone: 'UTC' })
@@ -10,10 +14,10 @@ function formatDate(value) {
 
 function StatCard({ label, value }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-ink">{value}</p>
-    </div>
+    <Card>
+      <Label>{label}</Label>
+      <p className="font-display text-[26px] leading-tight mt-[3px]">{value}</p>
+    </Card>
   )
 }
 
@@ -41,57 +45,64 @@ function AdminDashboard() {
   const base = stats?.baseCurrency ?? 'USD'
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-700">Bread · Admin</h1>
-        <Link to="/" className="text-sm text-slate-500 hover:text-slate-700">
-          Back to dashboard
-        </Link>
-      </header>
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-        {loading ? (
-          <p className="text-slate-500">Loading…</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard label="Total users" value={stats.totals.userCount} />
-              <StatCard label="Total expenses" value={stats.totals.expenseCount} />
-              <StatCard label="Total spend" value={formatMoney(stats.totals.totalSpend, base)} />
-              <StatCard label="Linked banks" value={stats.totals.bankCount} />
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
-                  <tr>
-                    <th className="px-6 py-3 font-medium">Email</th>
-                    <th className="px-6 py-3 font-medium">Signed up</th>
-                    <th className="px-6 py-3 font-medium">Expenses</th>
-                    <th className="px-6 py-3 font-medium">Banks</th>
-                    <th className="px-6 py-3 font-medium">Total spend</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {stats.users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-3 text-ink">{user.email}</td>
-                      <td className="px-6 py-3 text-slate-500">{formatDate(user.createdAt)}</td>
-                      <td className="px-6 py-3 text-slate-500">{user.expenseCount}</td>
-                      <td className="px-6 py-3 text-slate-500">{user.bankCount}</td>
-                      <td className="px-6 py-3 text-ink">{formatMoney(user.totalSpend, base)}</td>
+    <main className="px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
+      {loading ? (
+        <p className="text-ink-muted text-center">Loading…</p>
+      ) : error ? (
+        <p className="text-accent-deep text-center">{error}</p>
+      ) : (
+        <>
+          <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>
+            ← Back to dashboard
+          </Button>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Total users" value={stats.totals.userCount} />
+            <StatCard label="Total expenses" value={stats.totals.expenseCount} />
+            <StatCard label="Total spend" value={formatMoney(stats.totals.totalSpend, base)} />
+            <StatCard label="Linked banks" value={stats.totals.bankCount} />
+          </div>
+
+          <Card className="flex flex-col gap-3.5 flex-1 min-h-0">
+            <h2 className="font-display text-[22px]">Users</h2>
+            {stats.users.length === 0 ? (
+              <p className="text-sm text-ink-secondary">No users yet.</p>
+            ) : (
+              <div className="flex-1 min-h-0 overflow-auto">
+                <Table>
+                  <thead>
+                    <tr>
+                      <Th>Email</Th>
+                      <Th>Signed up</Th>
+                      <Th align="right">Expenses</Th>
+                      <Th align="right">Banks</Th>
+                      <Th align="right">Total spend</Th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {stats.users.length === 0 && (
-                <p className="px-6 py-4 text-slate-500">No users yet.</p>
-              )}
-            </div>
-          </>
-        )}
-      </main>
-    </div>
+                  </thead>
+                  <tbody>
+                    {stats.users.map((user) => (
+                      <tr key={user.id}>
+                        <Td>{user.email}</Td>
+                        <Td className="text-ink-secondary">{formatDate(user.createdAt)}</Td>
+                        <Td align="right" className="text-ink-secondary">
+                          {user.expenseCount}
+                        </Td>
+                        <Td align="right" className="text-ink-secondary">
+                          {user.bankCount}
+                        </Td>
+                        <Td align="right" className="font-semibold">
+                          {formatMoney(user.totalSpend, base)}
+                        </Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </Card>
+        </>
+      )}
+    </main>
   )
 }
 
