@@ -2,6 +2,7 @@ import { useOutletContext } from 'react-router-dom'
 import ListPage, { ListRow } from '../components/ListPage'
 import Button from '../ui/Button'
 import { formatMoney } from '../currencies'
+import { ListRowsSkeleton } from '../components/Skeletons'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString('en-US', {
@@ -21,7 +22,7 @@ function Anomalies() {
       blurb="Charges that broke from your usual pattern this month."
     >
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <ListRowsSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : anomalies.length === 0 ? (

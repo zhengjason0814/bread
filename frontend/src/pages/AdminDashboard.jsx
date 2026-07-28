@@ -7,6 +7,7 @@ import Card from '../ui/Card'
 import Button from '../ui/Button'
 import Label from '../ui/Label'
 import { Table, Th, Td } from '../ui/Table'
+import { AdminSkeleton } from '../components/Skeletons'
 
 function formatDate(value) {
   return new Date(value).toLocaleDateString(undefined, { timeZone: 'UTC' })
@@ -47,7 +48,7 @@ function AdminDashboard() {
   return (
     <main className="px-4 sm:px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <AdminSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : (

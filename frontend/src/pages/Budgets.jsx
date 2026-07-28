@@ -7,6 +7,7 @@ import { Input, Select } from '../ui/Field'
 import { budgetBarClass, budgetStatuses } from '../budgets'
 import { BUDGETABLE_CATEGORIES } from '../categories'
 import { formatMoney } from '../currencies'
+import { ListRowsSkeleton } from '../components/Skeletons'
 
 function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
   const [editing, setEditing] = useState(false)
@@ -174,7 +175,7 @@ function Budgets() {
       }
     >
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <ListRowsSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : (

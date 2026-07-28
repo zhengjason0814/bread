@@ -3,6 +3,7 @@ import ListPage, { ListRow } from '../components/ListPage'
 import ConnectBank from '../components/ConnectBank'
 import Button from '../ui/Button'
 import { formatMoney } from '../currencies'
+import { ListRowsSkeleton } from '../components/Skeletons'
 
 function groupByConnection(accounts) {
   const groups = new Map()
@@ -86,7 +87,7 @@ function Accounts() {
       }
     >
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <ListRowsSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : groups.length === 0 ? (

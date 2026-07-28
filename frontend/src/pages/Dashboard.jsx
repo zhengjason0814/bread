@@ -5,6 +5,7 @@ import ConnectBank from '../components/ConnectBank'
 import GreetingRow from '../components/GreetingRow'
 import CategoryDonut from '../components/CategoryDonut'
 import MonthBars from '../components/MonthBars'
+import { DashboardSkeleton } from '../components/Skeletons'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
 import Tag from '../ui/Tag'
@@ -64,7 +65,7 @@ function Dashboard() {
   return (
     <main className="px-4 sm:px-[30px] pt-5 pb-[34px] flex flex-col gap-6">
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <DashboardSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : (

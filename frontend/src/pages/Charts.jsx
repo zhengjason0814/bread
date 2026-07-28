@@ -14,6 +14,7 @@ import {
 import { monthlyTotals, samePointDelta } from '../trend'
 import { categoryColor } from '../categoryColors'
 import { formatMoney } from '../currencies'
+import { ChartsSkeleton } from '../components/Skeletons'
 
 function monthName(monthKey) {
   return monthLabel(monthKey).split(' ')[0]
@@ -61,7 +62,7 @@ function Charts() {
   return (
     <main className="px-4 sm:px-[30px] pt-3.5 pb-12 flex flex-col gap-4 min-h-full">
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <ChartsSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : (

@@ -2,6 +2,7 @@ import { useOutletContext } from 'react-router-dom'
 import ListPage, { ListRow } from '../components/ListPage'
 import { formatMoney } from '../currencies'
 import { formatNextDate, recurringMonthlyTotal } from '../recurring'
+import { ListRowsSkeleton } from '../components/Skeletons'
 
 const WARM_UP_NOTE = "New subscriptions can take a few months of history before they're detected."
 
@@ -19,7 +20,7 @@ function Recurring() {
       blurb="Subscriptions and memberships detected in your history."
     >
       {loading ? (
-        <p className="text-ink-muted text-center">Loading…</p>
+        <ListRowsSkeleton />
       ) : error ? (
         <p className="text-accent-deep text-center">{error}</p>
       ) : unavailable ? (
