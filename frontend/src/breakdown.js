@@ -55,3 +55,15 @@ export function categoryBreakdown(expenses, monthKey) {
   const total = ranked.reduce((sum, slice) => sum + slice.amount, 0)
   return { total, slices }
 }
+
+export function monthTotals(expenses, monthKey) {
+  let income = 0
+  let spend = 0
+  for (const expense of expenses) {
+    if (typeof expense.convertedAmount !== 'number') continue
+    if (String(expense.date).slice(0, 7) !== monthKey) continue
+    if (expense.type === 'income') income += expense.convertedAmount
+    else if (isSpend(expense)) spend += expense.convertedAmount
+  }
+  return { income, spend, net: income - spend }
+}
