@@ -6,7 +6,7 @@ from .prediction import predict_spend
 from .recurring import detect_recurring
 from .schemas import AnomaliesRequest, ClassifyRequest, PredictRequest, RecurringRequest
 
-app = FastAPI(title="Fundy ML Service")
+app = FastAPI(title="Bread ML Service")
 
 
 @app.get("/health")

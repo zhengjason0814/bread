@@ -178,7 +178,7 @@ function Dashboard() {
     <div className="min-h-screen bg-surface">
       {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-700">Fundy</h1>
+        <h1 className="text-xl font-semibold text-brand-700">Bread</h1>
         <div className="flex items-center gap-4">
           {isAdmin && (
             <Link to="/admin" className="text-sm text-brand-700 hover:text-brand-800">

@@ -51,17 +51,13 @@ def predict_spend(expenses, as_of):
         for alpha in QUANTILE_ALPHAS
     ]
 
-    days_in_current = calendar.monthrange(as_of_date.year, as_of_date.month)[1]
     current_daily = daily_by_month.get(current_key, {})
     spent_so_far = sum(amount for day, amount in current_daily.items() if day <= as_of_date.day)
 
-    current_range = _quantile_range(
-        models, [as_of_date.day / days_in_current, spent_so_far], floor=spent_so_far
-    )
     next_range = _quantile_range(models, [0.0, 0.0])
 
     return {
         "status": "ok",
-        "current_month": {**current_range, "spent_so_far": round(spent_so_far, 2)},
+        "current_month": {"spent_so_far": round(spent_so_far, 2)},
         "next_month": next_range,
     }

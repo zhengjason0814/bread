@@ -31,11 +31,9 @@ function PredictionCard({ prediction, baseCurrency }) {
         <div>
           <p className="text-sm text-slate-500">This month</p>
           <p className="text-xl font-semibold text-ink">
-            {rangeLabel(current, baseCurrency)}
+            {formatMoney(current.spent_so_far, baseCurrency)}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
-            {formatMoney(current.spent_so_far, baseCurrency)} spent so far
-          </p>
+          <p className="text-xs text-slate-400 mt-1">spent so far</p>
         </div>
         <div>
           <p className="text-sm text-slate-500">Next month</p>

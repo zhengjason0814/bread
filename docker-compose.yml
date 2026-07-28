@@ -1,3 +1,5 @@
+name: bread
+
 services:
   mongo:
     image: mongo:7
@@ -26,7 +28,7 @@ services:
       - ./backend/.env
     environment:
       NODE_ENV: production
-      MONGO_URI: mongodb://mongo:27017/fundy
+      MONGO_URI: mongodb://mongo:27017/bread
       ML_SERVICE_URL: http://ml-service:8000
       REDIS_URL: redis://redis:6379
     depends_on:

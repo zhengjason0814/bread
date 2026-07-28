@@ -104,7 +104,7 @@ async function syncItem(item) {
 router.post('/link-token', async (req, res) => {
   const response = await plaidClient.linkTokenCreate({
     user: { client_user_id: String(req.userId) },
-    client_name: 'Fundy',
+    client_name: 'Bread',
     products: ['transactions'],
     transactions: { days_requested: 365 },
     country_codes: ['US'],

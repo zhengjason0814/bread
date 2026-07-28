@@ -26,8 +26,9 @@ def test_predict_ok():
     response = client.post("/predict", json={"as_of": "2026-07-16", "expenses": expenses})
     body = response.json()
     assert body["status"] == "ok"
-    assert body["current_month"]["low"] <= body["current_month"]["high"]
-    assert "next_month" in body
+    assert "spent_so_far" in body["current_month"]
+    assert "low" not in body["current_month"]
+    assert body["next_month"]["low"] <= body["next_month"]["high"]
 
 
 def test_classify_relays_suggestion(monkeypatch):

@@ -43,7 +43,7 @@ router.post('/', demoLimiter, async (req, res) => {
 
   const passwordHash = await bcrypt.hash(randomUUID(), 10)
   const user = await User.create({
-    email: `demo+${randomUUID()}@fundy.local`,
+    email: `demo+${randomUUID()}@bread.local`,
     passwordHash,
     isDemo: true,
     demoCreatedAt: new Date(),

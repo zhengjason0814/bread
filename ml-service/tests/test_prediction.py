@@ -41,14 +41,13 @@ def test_three_complete_months_unlocks_predictions():
     assert predict_spend(expenses, "2026-07-16")["status"] == "ok"
 
 
-def test_projects_steady_spending():
+def test_current_month_reports_actual_spend_not_a_forecast():
     result = predict_spend(build_history(), "2026-07-16")
     assert result["status"] == "ok"
     current = result["current_month"]
-    assert current["spent_so_far"] == 160.0
-    assert current["low"] <= current["mid"] <= current["high"]
-    assert 200 <= current["mid"] <= 400
-    assert current["low"] >= current["spent_so_far"]
+    assert current == {"spent_so_far": 160.0}
+    assert "low" not in current
+    assert "high" not in current
 
 
 def test_next_month_forecast_in_plausible_range():

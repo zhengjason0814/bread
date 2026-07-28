@@ -44,7 +44,7 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-brand-700 text-center mb-6">Fundy</h1>
+        <h1 className="text-2xl font-semibold text-brand-700 text-center mb-6">Bread</h1>
         <form
           onSubmit={handleSubmit}
           className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4"

@@ -43,7 +43,7 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-surface">
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-700">Fundy · Admin</h1>
+        <h1 className="text-xl font-semibold text-brand-700">Bread · Admin</h1>
         <Link to="/" className="text-sm text-slate-500 hover:text-slate-700">
           Back to dashboard
         </Link>

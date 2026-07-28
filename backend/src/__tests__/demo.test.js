@@ -15,7 +15,7 @@ function tokenFor(userId, extra = {}) {
 
 describe('GET /api/auth/me isDemo flag', () => {
   it('is true for a demo user and false for a normal user', async () => {
-    const demo = await User.create({ email: 'demo1@fundy.local', passwordHash: 'x', isDemo: true })
+    const demo = await User.create({ email: 'demo1@bread.local', passwordHash: 'x', isDemo: true })
     const normal = await User.create({ email: 'real@example.com', passwordHash: 'x' })
 
     const demoMe = await authed(request(app).get('/api/auth/me'), tokenFor(demo._id, { isDemo: true }))
@@ -33,7 +33,7 @@ const PlaidItem = require('../models/PlaidItem')
 
 describe('demoData seed/clear', () => {
   it('seeds a lifelike dataset for a user', async () => {
-    const user = await User.create({ email: 'seed@fundy.local', passwordHash: 'x', isDemo: true })
+    const user = await User.create({ email: 'seed@bread.local', passwordHash: 'x', isDemo: true })
     await seedDemoUser(user._id)
 
     const expenses = await Expense.find({ user: user._id })
@@ -57,7 +57,7 @@ describe('demoData seed/clear', () => {
   })
 
   it('clears all of a demo user\'s data', async () => {
-    const user = await User.create({ email: 'clear@fundy.local', passwordHash: 'x', isDemo: true })
+    const user = await User.create({ email: 'clear@bread.local', passwordHash: 'x', isDemo: true })
     await seedDemoUser(user._id)
     await clearDemoUserData(user._id)
 
@@ -85,7 +85,7 @@ describe('POST /api/demo', () => {
 
   it('sweeps demo users older than the TTL but leaves real and fresh ones', async () => {
     const old = await User.create({
-      email: `demo-old-${Date.now()}@fundy.local`,
+      email: `demo-old-${Date.now()}@bread.local`,
       passwordHash: 'x',
       isDemo: true,
       demoCreatedAt: new Date(Date.now() - 25 * 60 * 60 * 1000),
@@ -93,7 +93,7 @@ describe('POST /api/demo', () => {
     await seedDemoUser(old._id)
     const real = await User.create({ email: 'keep@example.com', passwordHash: 'x' })
     const fresh = await User.create({
-      email: `demo-fresh-${Date.now()}@fundy.local`,
+      email: `demo-fresh-${Date.now()}@bread.local`,
       passwordHash: 'x',
       isDemo: true,
       demoCreatedAt: new Date(),
