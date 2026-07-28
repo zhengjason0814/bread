@@ -1,9 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import client from "../api/client";
-import { clearToken, isDemoSession } from "../auth";
-import { resetDemo, endDemo } from "../demo";
-import { CURRENCIES } from "../currencies";
+import { useOutletContext } from "react-router-dom";
 import AddExpenseForm from "../components/AddExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 import AccountsPanel from "../components/AccountsPanel";
@@ -15,250 +10,81 @@ import SpendingTrendCard from "../components/SpendingTrendCard";
 import BudgetsCard from "../components/BudgetsCard";
 import BudgetAlertStrip from "../components/BudgetAlertStrip";
 import RecurringCard from "../components/RecurringCard";
-import DemoBanner from "../components/DemoBanner";
 
 function Dashboard() {
-  const [expenses, setExpenses] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [prediction, setPrediction] = useState(null);
-  const [anomalies, setAnomalies] = useState([]);
-  const [baseCurrency, setBaseCurrency] = useState("USD");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [budgets, setBudgets] = useState({});
-  const [recurring, setRecurring] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [syncing, setSyncing] = useState(false);
-  const [isDemo] = useState(isDemoSession());
-  const [resetting, setResetting] = useState(false);
-  const autoSyncStarted = useRef(false);
-  const navigate = useNavigate();
-
-  const loadData = useCallback(async () => {
-    try {
-      const [
-        meResponse,
-        expensesResponse,
-        accountsResponse,
-        predictionResponse,
-        anomaliesResponse,
-        recurringResponse,
-      ] = await Promise.all([
-        client.get("/auth/me"),
-        client.get("/expenses"),
-        client.get("/accounts"),
-        client.get("/insights/prediction").catch(() => null),
-        client.get("/insights/anomalies").catch(() => null),
-        client.get("/insights/recurring").catch(() => null),
-      ]);
-      setBaseCurrency(meResponse.data.user.baseCurrency);
-      setIsAdmin(meResponse.data.user.isAdmin ?? false);
-      setBudgets(meResponse.data.user.budgets ?? {});
-      setExpenses(expensesResponse.data.expenses);
-      setAccounts(accountsResponse.data.accounts);
-      setPrediction(predictionResponse?.data ?? { status: "unavailable" });
-      setAnomalies(anomaliesResponse?.data?.anomalies ?? []);
-      setRecurring(recurringResponse?.data ?? { status: "unavailable" });
-    } catch (err) {
-      if (err.response?.status === 401) {
-        clearToken();
-        navigate("/login");
-      } else {
-        setError("Could not load your data");
-      }
-    }
-  }, [navigate]);
-
-  const syncThenReload = useCallback(async () => {
-    setSyncing(true);
-    try {
-      await client.post("/plaid/sync");
-      await loadData();
-    } finally {
-      setSyncing(false);
-    }
-  }, [loadData]);
-
-  useEffect(() => {
-    loadData().finally(() => setLoading(false));
-    if (autoSyncStarted.current || isDemo) return;
-    autoSyncStarted.current = true;
-    syncThenReload().catch(() => {});
-  }, [loadData, syncThenReload]);
-
-  async function handleExpenseAdded(expense) {
-    setExpenses((current) =>
-      [expense, ...current].sort((a, b) => new Date(b.date) - new Date(a.date)),
-    );
-    try {
-      const response = await client.get("/insights/anomalies");
-      setAnomalies(response.data.anomalies ?? []);
-    } catch {
-      // keep existing anomalies if the recheck fails
-    }
-  }
-
-  async function handleExpenseDeleted(id) {
-    await client.delete(`/expenses/${id}`);
-    setExpenses((current) => current.filter((expense) => expense._id !== id));
-    try {
-      const response = await client.get("/insights/anomalies");
-      setAnomalies(response.data.anomalies ?? []);
-    } catch {
-      // keep existing anomalies if the recheck fails
-    }
-  }
-
-  async function handleDismissAnomaly(id) {
-    await client.post(`/expenses/${id}/dismiss-anomaly`);
-    setAnomalies((current) => current.filter((anomaly) => anomaly.id !== id));
-  }
-
-  async function handleBudgetSet(category, amount) {
-    const response = await client.put("/budgets", { category, amount });
-    setBudgets(response.data.budgets);
-  }
-
-  async function handleBudgetRemoved(category) {
-    const response = await client.delete(`/budgets/${encodeURIComponent(category)}`);
-    setBudgets(response.data.budgets);
-  }
-
-  async function handleSync() {
-    try {
-      await syncThenReload();
-    } catch {
-      setError("Could not sync your accounts");
-    }
-  }
-
-  async function handleAccountDisconnected(itemId) {
-    await client.delete(`/plaid/items/${itemId}`);
-    await loadData();
-  }
-
-  function handleReceiptChange(updatedExpense) {
-    setExpenses((current) =>
-      current.map((expense) =>
-        expense._id === updatedExpense._id ? updatedExpense : expense,
-      ),
-    );
-  }
-
-  async function handleBaseCurrencyChange(event) {
-    const next = event.target.value;
-    setBaseCurrency(next);
-    await client.patch("/auth/me", { baseCurrency: next });
-    await loadData();
-  }
-
-  async function handleLogout() {
-    if (isDemo) {
-      try {
-        await endDemo();
-      } catch {}
-    }
-    clearToken();
-    navigate("/login");
-  }
-
-  async function handleResetDemo() {
-    setResetting(true);
-    try {
-      await resetDemo();
-      await loadData();
-    } catch {
-      setError("Could not reset the demo");
-    } finally {
-      setResetting(false);
-    }
-  }
+  const { loading, error, ...data } = useOutletContext();
+  const {
+    expenses,
+    accounts,
+    prediction,
+    anomalies,
+    recurring,
+    budgets,
+    baseCurrency,
+    isDemo,
+    syncing,
+    onExpenseAdded,
+    onExpenseDeleted,
+    onDismissAnomaly,
+    onBudgetSet,
+    onBudgetRemoved,
+    onSync,
+    onAccountDisconnected,
+    onReceiptChange,
+    reload,
+  } = data;
 
   return (
-    <div className="min-h-screen bg-surface">
-      {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-700">Bread</h1>
-        <div className="flex items-center gap-4">
-          {isAdmin && (
-            <Link to="/admin" className="text-sm text-brand-700 hover:text-brand-800">
-              Admin
-            </Link>
-          )}
-          <label className="flex items-center gap-2 text-sm text-slate-500">
-            Home currency
-            <select
-              value={baseCurrency}
-              onChange={handleBaseCurrencyChange}
-              className="rounded-md border border-slate-300 px-2 py-1 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              {CURRENCIES.map((code) => (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-sm text-slate-500 hover:text-slate-700"
-          >
-            Log out
-          </button>
-        </div>
-      </header>
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {loading ? (
-          <p className="text-slate-500 text-center">Loading…</p>
-        ) : error ? (
-          <p className="text-red-600 text-center">{error}</p>
-        ) : (
-          <>
-            <BalanceCard accounts={accounts} baseCurrency={baseCurrency} />
-            <AccountsPanel
-              accounts={accounts}
-              onConnected={loadData}
-              onSync={handleSync}
-              onDisconnect={handleAccountDisconnected}
-              syncing={syncing}
-              isDemo={isDemo}
-            />
-            <AnomalyStrip
-              anomalies={anomalies}
-              baseCurrency={baseCurrency}
-              onDismiss={handleDismissAnomaly}
-            />
-            <BudgetAlertStrip expenses={expenses} budgets={budgets} baseCurrency={baseCurrency} />
-            <PredictionCard prediction={prediction} baseCurrency={baseCurrency} />
-            <CategoryBreakdownCard expenses={expenses} baseCurrency={baseCurrency} />
-            <SpendingTrendCard expenses={expenses} baseCurrency={baseCurrency} />
-            <BudgetsCard
-              expenses={expenses}
-              baseCurrency={baseCurrency}
-              budgets={budgets}
-              onSet={handleBudgetSet}
-              onRemove={handleBudgetRemoved}
-            />
-            <RecurringCard recurring={recurring} baseCurrency={baseCurrency} />
-            <AddExpenseForm onAdded={handleExpenseAdded} baseCurrency={baseCurrency} />
-            <ExpenseList
-              expenses={expenses}
-              baseCurrency={baseCurrency}
-              onDelete={handleExpenseDeleted}
-              onReceiptChange={handleReceiptChange}
-              anomalyIds={new Set(anomalies.map((anomaly) => anomaly.id))}
-              recurringIds={
-                new Set(
-                  (recurring?.series ?? []).flatMap((entry) => entry.expense_ids ?? [])
-                )
-              }
-              isDemo={isDemo}
-            />
-          </>
-        )}
-      </main>
-    </div>
+    <main className="px-[30px] pt-5 pb-[34px] flex flex-col gap-6">
+      {loading ? (
+        <p className="text-ink-muted text-center">Loading…</p>
+      ) : error ? (
+        <p className="text-accent-deep text-center">{error}</p>
+      ) : (
+        <>
+          <BalanceCard accounts={accounts} baseCurrency={baseCurrency} />
+          <AccountsPanel
+            accounts={accounts}
+            onConnected={reload}
+            onSync={onSync}
+            onDisconnect={onAccountDisconnected}
+            syncing={syncing}
+            isDemo={isDemo}
+          />
+          <AnomalyStrip
+            anomalies={anomalies}
+            baseCurrency={baseCurrency}
+            onDismiss={onDismissAnomaly}
+          />
+          <BudgetAlertStrip expenses={expenses} budgets={budgets} baseCurrency={baseCurrency} />
+          <PredictionCard prediction={prediction} baseCurrency={baseCurrency} />
+          <CategoryBreakdownCard expenses={expenses} baseCurrency={baseCurrency} />
+          <SpendingTrendCard expenses={expenses} baseCurrency={baseCurrency} />
+          <BudgetsCard
+            expenses={expenses}
+            baseCurrency={baseCurrency}
+            budgets={budgets}
+            onSet={onBudgetSet}
+            onRemove={onBudgetRemoved}
+          />
+          <RecurringCard recurring={recurring} baseCurrency={baseCurrency} />
+          <AddExpenseForm onAdded={onExpenseAdded} baseCurrency={baseCurrency} />
+          <ExpenseList
+            expenses={expenses}
+            baseCurrency={baseCurrency}
+            onDelete={onExpenseDeleted}
+            onReceiptChange={onReceiptChange}
+            anomalyIds={new Set(anomalies.map((anomaly) => anomaly.id))}
+            recurringIds={
+              new Set(
+                (recurring?.series ?? []).flatMap((entry) => entry.expense_ids ?? [])
+              )
+            }
+            isDemo={isDemo}
+          />
+        </>
+      )}
+    </main>
   );
 }
 
