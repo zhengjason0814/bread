@@ -1,4 +1,5 @@
-const LIFT = 'transition duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift'
+const LIFT =
+  'transition duration-150 ease-out will-change-transform hover:-translate-y-[3px] hover:shadow-lift'
 const FOCUS_RING = 'focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2'
 
 function Card({ interactive = false, lift = false, onClick, className = '', children, ...rest }) {
