@@ -264,6 +264,11 @@ function Dashboard() {
                             over budget
                           </Tag>
                         )}
+                        {status.level === 'warn' && (
+                          <Tag variant="accent" className="ml-2">
+                            close to limit
+                          </Tag>
+                        )}
                         <span className="ml-auto text-ink-secondary">
                           {formatMoney(status.spent, baseCurrency)} /{' '}
                           {formatMoney(status.limit, baseCurrency)}
@@ -272,7 +277,11 @@ function Dashboard() {
                       <div className="h-[9px] rounded-full bg-track overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            status.level === 'over' ? 'bg-accent' : 'bg-sage'
+                            status.level === 'over'
+                              ? 'bg-accent'
+                              : status.level === 'warn'
+                              ? 'bg-accent-300'
+                              : 'bg-sage'
                           }`}
                           style={{ width: `${Math.min(status.ratio, 1) * 100}%` }}
                         />
