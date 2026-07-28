@@ -230,7 +230,11 @@ function Dashboard() {
                 <h2 className="font-display text-[18px]">Monthly spend</h2>
                 <span className="ml-auto text-[12px] text-accent-link">6 months →</span>
               </div>
-              <MonthBars months={monthlyTotals(expenses, 6).slice(-3)} height={150} />
+              <MonthBars
+                months={monthlyTotals(expenses, 6).slice(-3)}
+                height={150}
+                baseCurrency={baseCurrency}
+              />
             </Card>
 
             <Card

@@ -1,10 +1,14 @@
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis } from 'recharts'
 
-function compact(value) {
-  return `$${(value / 1000).toFixed(1)}k`
+function compact(value, currency) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+    notation: 'compact',
+  }).format(value)
 }
 
-function MonthBars({ months, height }) {
+function MonthBars({ months, height, baseCurrency }) {
   const data = months.map((month) => ({
     label: new Date(`${month.monthKey}-01T00:00:00Z`).toLocaleDateString('en-US', {
       month: 'short',
@@ -29,7 +33,7 @@ function MonthBars({ months, height }) {
           <LabelList
             dataKey="total"
             position="top"
-            formatter={compact}
+            formatter={(value) => compact(value, baseCurrency)}
             style={{ fill: '#645c50', fontSize: 11 }}
           />
         </Bar>
