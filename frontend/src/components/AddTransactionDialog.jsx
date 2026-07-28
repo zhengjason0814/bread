@@ -162,7 +162,7 @@ function AddTransactionDialog({ open, onClose, onAdded, baseCurrency }) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
         <Segmented options={TYPE_OPTIONS} value={type} onChange={setType} name="txkind" />
 
-        <div className="grid grid-cols-[1.1fr_0.9fr] gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-[1.1fr_0.9fr] gap-3.5">
           <Field label="Amount" error={fieldErrors.amount}>
             <Input
               inputMode="decimal"

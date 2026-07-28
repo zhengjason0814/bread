@@ -1,12 +1,5 @@
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis } from 'recharts'
-
-function compact(value, currency) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-    notation: 'compact',
-  }).format(value)
-}
+import { compactMoney } from '../currencies'
 
 function MonthBars({ months, height, baseCurrency }) {
   const data = months.map((month) => ({
@@ -33,7 +26,7 @@ function MonthBars({ months, height, baseCurrency }) {
           <LabelList
             dataKey="total"
             position="top"
-            formatter={(value) => compact(value, baseCurrency)}
+            formatter={(value) => compactMoney(value, baseCurrency)}
             style={{ fill: '#645c50', fontSize: 11 }}
           />
         </Bar>

@@ -22,8 +22,28 @@ function AppLayout() {
   const [syncing, setSyncing] = useState(false)
   const [isDemo] = useState(isDemoSession())
   const [resetting, setResetting] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const autoSyncStarted = useRef(false)
   const navigate = useNavigate()
+
+  const closeNav = useCallback(() => setNavOpen(false), [])
+
+  useEffect(() => {
+    if (!navOpen) return undefined
+    function handleKey(event) {
+      if (event.key === 'Escape') setNavOpen(false)
+    }
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    function handleBreakpoint(event) {
+      if (event.matches) setNavOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    desktop.addEventListener('change', handleBreakpoint)
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      desktop.removeEventListener('change', handleBreakpoint)
+    }
+  }, [navOpen])
 
   const loadData = useCallback(async () => {
     try {
@@ -189,7 +209,13 @@ function AppLayout() {
 
   return (
     <div className="h-screen overflow-hidden flex bg-page text-ink">
-      <Sidebar expenses={expenses} budgets={budgets} baseCurrency={baseCurrency} />
+      <Sidebar
+        expenses={expenses}
+        budgets={budgets}
+        baseCurrency={baseCurrency}
+        open={navOpen}
+        onClose={closeNav}
+      />
       <div className="flex-1 min-w-0 flex flex-col h-screen">
         {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
         <Header
@@ -197,8 +223,10 @@ function AppLayout() {
           onBaseCurrencyChange={handleBaseCurrencyChange}
           onLogout={handleLogout}
           isAdmin={isAdmin}
+          onOpenNav={() => setNavOpen(true)}
+          navOpen={navOpen}
         />
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
           <Outlet context={context} />
         </div>
       </div>

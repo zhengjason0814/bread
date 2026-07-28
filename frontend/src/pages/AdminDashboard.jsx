@@ -45,7 +45,7 @@ function AdminDashboard() {
   const base = stats?.baseCurrency ?? 'USD'
 
   return (
-    <main className="px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
+    <main className="px-4 sm:px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
       {loading ? (
         <p className="text-ink-muted text-center">Loading…</p>
       ) : error ? (
@@ -56,7 +56,7 @@ function AdminDashboard() {
             ← Back to dashboard
           </Button>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard label="Total users" value={stats.totals.userCount} />
             <StatCard label="Total expenses" value={stats.totals.expenseCount} />
             <StatCard label="Total spend" value={formatMoney(stats.totals.totalSpend, base)} />
@@ -69,7 +69,7 @@ function AdminDashboard() {
               <p className="text-sm text-ink-secondary">No users yet.</p>
             ) : (
               <div className="flex-1 min-h-0 overflow-auto">
-                <Table>
+                <Table className="min-w-[620px]">
                   <thead>
                     <tr>
                       <Th>Email</Th>

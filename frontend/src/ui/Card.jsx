@@ -1,4 +1,7 @@
-function Card({ interactive = false, onClick, className = '', children, ...rest }) {
+const LIFT = 'transition duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift'
+const FOCUS_RING = 'focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2'
+
+function Card({ interactive = false, lift = false, onClick, className = '', children, ...rest }) {
   const interactiveProps = interactive
     ? {
         role: 'button',
@@ -18,10 +21,8 @@ function Card({ interactive = false, onClick, className = '', children, ...rest 
     <div
       {...interactiveProps}
       className={`bg-card rounded-card px-5 py-[18px] shadow-card ${
-        interactive
-          ? 'cursor-pointer transition duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2'
-          : ''
-      } ${className}`}
+        interactive || lift ? LIFT : ''
+      } ${interactive ? `cursor-pointer ${FOCUS_RING}` : ''} ${className}`}
       {...rest}
     >
       {children}

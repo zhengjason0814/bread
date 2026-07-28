@@ -59,7 +59,7 @@ function Charts() {
       : 0
 
   return (
-    <main className="px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
+    <main className="px-4 sm:px-[30px] pt-3.5 pb-12 flex flex-col gap-4 min-h-full">
       {loading ? (
         <p className="text-ink-muted text-center">Loading…</p>
       ) : error ? (
@@ -71,8 +71,8 @@ function Charts() {
           </Button>
 
           <Card className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-display text-[22px]" aria-live="polite">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h2 className="font-display text-[19px] sm:text-[22px]" aria-live="polite">
                 By category — {monthLabel(monthKey)}
               </h2>
               <div className="flex items-center gap-1">
@@ -97,15 +97,15 @@ function Charts() {
             {slices.length === 0 ? (
               <p className="text-sm text-ink-secondary">No spending in this month.</p>
             ) : (
-              <div className="flex items-center gap-7">
+              <div className="flex flex-col lg:flex-row items-center gap-7">
                 <CategoryDonut
                   slices={slices}
                   total={total}
-                  size={230}
+                  size={264}
                   centerLabel="total spend"
                   baseCurrency={baseCurrency}
                 />
-                <div className="flex-1 flex flex-col gap-2.5 min-w-0">
+                <div className="w-full lg:flex-1 flex flex-col gap-2.5 min-w-0">
                   {slices.map((slice) => (
                     <div key={slice.name} className="flex items-center gap-2.5 text-sm">
                       <span

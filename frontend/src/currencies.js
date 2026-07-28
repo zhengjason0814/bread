@@ -7,6 +7,14 @@ export function formatMoney(amount, currency) {
   }).format(amount)
 }
 
+export function compactMoney(amount, currency) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+    notation: 'compact',
+  }).format(amount)
+}
+
 export function formatSignedMoney(amount, currency, type) {
   const signedAmount = type === 'income' ? amount : -amount
   return new Intl.NumberFormat('en-US', {

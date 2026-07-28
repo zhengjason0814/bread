@@ -55,7 +55,7 @@ function Transactions() {
   const shown = filterByType(expenses, filter)
 
   return (
-    <main className="px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
+    <main className="px-4 sm:px-[30px] pt-3.5 pb-[34px] flex flex-col gap-4 h-full">
       {loading ? (
         <p className="text-ink-muted text-center">Loading…</p>
       ) : error ? (
@@ -66,10 +66,10 @@ function Transactions() {
             ← Back to dashboard
           </Button>
 
-          <div className="flex items-end gap-11 flex-wrap px-1 pb-[18px] border-b border-rule">
+          <div className="flex items-end gap-x-11 gap-y-5 flex-wrap px-1 pb-[18px] border-b border-rule">
             <div>
               <Label>Bank balance</Label>
-              <p className="font-display text-[40px] leading-tight mt-1.5">
+              <p className="font-display text-[30px] sm:text-[40px] leading-tight mt-1.5">
                 {formatMoney(bankBalance, baseCurrency)}
               </p>
               <p className="text-[12px] text-ink-muted mt-0.5">
@@ -80,12 +80,12 @@ function Transactions() {
             {creditAccounts.length > 0 && (
               <div>
                 <Label>Credit owed</Label>
-                <p className="font-display text-[40px] leading-tight mt-1.5 text-accent-deep">
+                <p className="font-display text-[30px] sm:text-[40px] leading-tight mt-1.5 text-accent-deep">
                   {formatMoney(creditOwed, baseCurrency)}
                 </p>
               </div>
             )}
-            <div className="ml-auto flex gap-[34px]">
+            <div className="w-full lg:w-auto lg:ml-auto flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-[34px]">
               <div>
                 <Label>Income this month</Label>
                 <p className="font-display text-[26px] mt-1 text-sage-deep">

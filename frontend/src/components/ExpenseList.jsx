@@ -50,7 +50,7 @@ function ExpenseList({
   }
 
   return (
-    <Table>
+    <Table className="min-w-[820px]">
       <thead>
         <tr>
           <Th>Date</Th>

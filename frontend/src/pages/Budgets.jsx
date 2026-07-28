@@ -4,7 +4,7 @@ import ListPage from '../components/ListPage'
 import Button from '../ui/Button'
 import Tag from '../ui/Tag'
 import { Input, Select } from '../ui/Field'
-import { budgetStatuses } from '../budgets'
+import { budgetBarClass, budgetStatuses } from '../budgets'
 import { BUDGETABLE_CATEGORIES } from '../categories'
 import { formatMoney } from '../currencies'
 
@@ -50,8 +50,8 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
 
   return (
     <div className="flex flex-col gap-2 py-[13px] border-b border-rule-soft text-sm">
-      <div className="flex items-center gap-3.5">
-        <span className="font-semibold min-w-[190px] flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+        <span className="font-semibold w-full sm:w-auto sm:min-w-[190px] flex items-center gap-2">
           {status.category}
           {status.level === 'over' && (
             <Tag variant="accent" className="bg-accent-200 text-accent-deep">
@@ -60,7 +60,7 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
           )}
           {status.level === 'warn' && <Tag variant="accent">close to limit</Tag>}
         </span>
-        <span className="text-ink-muted flex-1">
+        <span className="text-ink-muted flex-1 min-w-0">
           {percent}% of a{' '}
           {editing ? (
             <Input
@@ -97,9 +97,7 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
       </div>
       <div className="h-2 rounded-full bg-track overflow-hidden" aria-hidden="true">
         <div
-          className={`h-full rounded-full ${
-            status.level === 'over' ? 'bg-accent' : status.level === 'warn' ? 'bg-accent-300' : 'bg-sage'
-          }`}
+          className={`h-full rounded-full ${budgetBarClass(status.ratio)}`}
           style={{ width: `${Math.min(status.ratio, 1) * 100}%` }}
         />
       </div>
@@ -122,7 +120,7 @@ function AddBudgetForm({ available, onSet, onDone }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex items-center gap-2 pb-[13px] border-b border-rule-soft">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 pb-[13px] border-b border-rule-soft">
       <Select
         value={category}
         onChange={(event) => setCategory(event.target.value)}

@@ -9,13 +9,21 @@ import Card from '../ui/Card'
 import Button from '../ui/Button'
 import Tag from '../ui/Tag'
 import Label from '../ui/Label'
+import MoreHint from '../ui/MoreHint'
 import { Table, Th, Td } from '../ui/Table'
 import { categoryBreakdown, currentMonthKey, monthLabel, monthTotals } from '../breakdown'
 import { categoryColor } from '../categoryColors'
 import { formatMoney, formatSignedMoney } from '../currencies'
-import { budgetStatuses } from '../budgets'
+import { budgetBarClass, budgetStatuses } from '../budgets'
 import { monthlyTotals } from '../trend'
 import { formatNextDate, recurringMonthlyTotal } from '../recurring'
+
+const RECENT_LIMIT = 10
+const ACCOUNT_LIMIT = 4
+const BUDGET_LIMIT = 3
+const RECURRING_LIMIT = 3
+const ANOMALY_LIMIT = 2
+const CARD_CAP = 'max-h-[300px] overflow-hidden'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString('en-US', {
@@ -46,7 +54,7 @@ function Dashboard() {
   const monthKey = currentMonthKey()
   const { total, slices } = categoryBreakdown(expenses, monthKey)
   const totals = monthTotals(expenses, monthKey)
-  const recentExpenses = expenses.slice(0, 10)
+  const recentExpenses = expenses.slice(0, RECENT_LIMIT)
   const anomalyIds = new Set(anomalies.map((anomaly) => anomaly.id))
   const recurringIds = new Set(
     (recurring?.series ?? []).flatMap((entry) => entry.expense_ids ?? [])
@@ -54,7 +62,7 @@ function Dashboard() {
   const budgetList = budgetStatuses(expenses, budgets)
 
   return (
-    <main className="px-[30px] pt-5 pb-[34px] flex flex-col gap-6">
+    <main className="px-4 sm:px-[30px] pt-5 pb-[34px] flex flex-col gap-6">
       {loading ? (
         <p className="text-ink-muted text-center">Loading…</p>
       ) : error ? (
@@ -68,7 +76,7 @@ function Dashboard() {
             baseCurrency={baseCurrency}
             email={email}
           />
-          <div className="grid grid-cols-[minmax(320px,0.8fr)_1.2fr] gap-5 pb-6 border-b border-rule items-stretch">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(320px,0.8fr)_1.2fr] gap-5 pb-6 border-b border-rule items-stretch">
             <Card
               interactive
               onClick={() => navigate('/charts')}
@@ -81,15 +89,15 @@ function Dashboard() {
               {slices.length === 0 ? (
                 <p className="text-sm text-ink-muted">No spending recorded this month yet.</p>
               ) : (
-                <div className="flex items-center gap-[22px]">
+                <div className="flex flex-col sm:flex-row items-center gap-[22px]">
                   <CategoryDonut
                     slices={slices}
                     total={total}
-                    size={142}
+                    size={158}
                     centerLabel={monthLabel(monthKey)}
                     baseCurrency={baseCurrency}
                   />
-                  <div className="flex flex-col gap-2 flex-1 min-w-0">
+                  <div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-1 min-w-0">
                     {slices.map((slice) => (
                       <div key={slice.name} className="flex items-center gap-2 text-[13px]">
                         <span
@@ -107,8 +115,8 @@ function Dashboard() {
               )}
             </Card>
 
-            <div className="relative min-h-[240px]">
-              <Card className="absolute inset-0 flex flex-col">
+            <div className="relative min-h-[360px] xl:min-h-[240px]">
+              <Card lift className="absolute inset-0 flex flex-col">
                 <div className="flex items-center flex-wrap gap-x-3 gap-y-2.5">
                   <button
                     type="button"
@@ -125,7 +133,7 @@ function Dashboard() {
                   </Button>
                 </div>
                 <div className="mt-2.5 flex-1 min-h-0 overflow-auto">
-                  <Table>
+                  <Table className="min-w-[480px]">
                     <thead>
                       <tr>
                         <Th>Date</Th>
@@ -172,6 +180,11 @@ function Dashboard() {
                       ))}
                     </tbody>
                   </Table>
+                  <MoreHint
+                    count={expenses.length - RECENT_LIMIT}
+                    noun="transactions"
+                    className="pt-2"
+                  />
                 </div>
               </Card>
             </div>
@@ -185,11 +198,11 @@ function Dashboard() {
             />
           )}
 
-          <div className="grid grid-cols-3 gap-5 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
             <Card
               interactive
               onClick={() => navigate('/accounts')}
-              className="flex flex-col gap-2.5"
+              className={`flex flex-col gap-2.5 ${CARD_CAP}`}
             >
               <div className="flex items-center gap-2.5">
                 <h2 className="font-display text-[18px]">Accounts</h2>
@@ -204,7 +217,7 @@ function Dashboard() {
                 </p>
               ) : (
                 <div className="flex flex-col gap-[7px] text-[13px] mt-1">
-                  {accounts.slice(0, 4).map((account) => (
+                  {accounts.slice(0, ACCOUNT_LIMIT).map((account) => (
                     <div key={account._id} className="flex items-center gap-2.5">
                       <span className="font-semibold truncate">{account.name}</span>
                       {account.mask && (
@@ -217,6 +230,7 @@ function Dashboard() {
                       </span>
                     </div>
                   ))}
+                  <MoreHint count={accounts.length - ACCOUNT_LIMIT} noun="accounts" />
                 </div>
               )}
             </Card>
@@ -224,7 +238,7 @@ function Dashboard() {
             <Card
               interactive
               onClick={() => navigate('/charts')}
-              className="flex flex-col gap-3"
+              className={`flex flex-col gap-3 ${CARD_CAP}`}
             >
               <div className="flex items-center gap-2.5">
                 <h2 className="font-display text-[18px]">Monthly spend</h2>
@@ -240,7 +254,7 @@ function Dashboard() {
             <Card
               interactive
               onClick={() => navigate('/budgets')}
-              className="flex flex-col gap-3"
+              className={`flex flex-col gap-3 ${CARD_CAP}`}
             >
               <div className="flex items-center gap-2.5">
                 <h2 className="font-display text-[18px]">Budgets</h2>
@@ -252,7 +266,7 @@ function Dashboard() {
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {budgetList.slice(0, 3).map((status) => (
+                  {budgetList.slice(0, BUDGET_LIMIT).map((status) => (
                     <div key={status.category} className="flex flex-col gap-[5px]">
                       <div className="flex items-center text-[13px]">
                         <span className="font-semibold">{status.category}</span>
@@ -276,18 +290,13 @@ function Dashboard() {
                       </div>
                       <div className="h-[9px] rounded-full bg-track overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
-                            status.level === 'over'
-                              ? 'bg-accent'
-                              : status.level === 'warn'
-                              ? 'bg-accent-300'
-                              : 'bg-sage'
-                          }`}
+                          className={`h-full rounded-full ${budgetBarClass(status.ratio)}`}
                           style={{ width: `${Math.min(status.ratio, 1) * 100}%` }}
                         />
                       </div>
                     </div>
                   ))}
+                  <MoreHint count={budgetList.length - BUDGET_LIMIT} noun="budgets" />
                 </div>
               )}
             </Card>
@@ -295,7 +304,7 @@ function Dashboard() {
             <Card
               interactive
               onClick={() => navigate('/recurring')}
-              className="flex flex-col gap-2.5"
+              className={`flex flex-col gap-2.5 ${CARD_CAP}`}
             >
               <div className="flex items-center gap-2.5">
                 <h2 className="font-display text-[18px]">Recurring</h2>
@@ -312,18 +321,22 @@ function Dashboard() {
               ) : (
                 <>
                   <div className="flex flex-col gap-2.5 text-[13px]">
-                    {recurring.series.slice(0, 3).map((entry) => (
-                      <div key={entry.name} className="flex items-center gap-2.5">
-                        <span className="font-semibold truncate">{entry.name}</span>
-                        <span className="text-ink-faint">{entry.cadence}</span>
-                        <span className="ml-auto">
+                    {recurring.series.slice(0, RECURRING_LIMIT).map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-2.5 min-w-0">
+                        <span className="font-semibold truncate min-w-0">{entry.name}</span>
+                        <span className="text-ink-faint flex-none">{entry.cadence}</span>
+                        <span className="ml-auto flex-none whitespace-nowrap">
                           ~{formatMoney(entry.typical_amount, baseCurrency)}
                         </span>
-                        <span className="text-ink-faint w-[78px] text-right">
+                        <span className="text-ink-faint w-[78px] flex-none text-right whitespace-nowrap">
                           next {formatNextDate(entry.next_expected)}
                         </span>
                       </div>
                     ))}
+                    <MoreHint
+                      count={recurring.series.length - RECURRING_LIMIT}
+                      noun="recurring charges"
+                    />
                   </div>
                   <p className="text-[13px] text-ink-secondary mt-1">
                     ≈{' '}
@@ -339,7 +352,7 @@ function Dashboard() {
             <Card
               interactive
               onClick={() => navigate('/charts')}
-              className="flex flex-col gap-2.5"
+              className={`flex flex-col gap-2.5 ${CARD_CAP}`}
             >
               <h2 className="font-display text-[18px]">Spending outlook</h2>
               {!prediction || prediction.status === 'unavailable' ? (
@@ -352,7 +365,7 @@ function Dashboard() {
                 </p>
               ) : (
                 <>
-                  <div className="flex gap-[26px] mt-1">
+                  <div className="flex flex-wrap gap-x-[26px] gap-y-3 mt-1">
                     <div>
                       <Label>This month</Label>
                       <p className="font-display text-[22px] mt-[3px]">
@@ -379,7 +392,7 @@ function Dashboard() {
             <Card
               interactive
               onClick={() => navigate('/anomalies')}
-              className="flex flex-col gap-2.5"
+              className={`flex flex-col gap-2.5 ${CARD_CAP}`}
             >
               <div className="flex items-center gap-2.5">
                 <h2 className="font-display text-[18px]">Anomalies</h2>
@@ -391,7 +404,7 @@ function Dashboard() {
                 <p className="text-sm text-ink-muted">No unusual charges detected.</p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {anomalies.slice(0, 2).map((anomaly) => {
+                  {anomalies.slice(0, ANOMALY_LIMIT).map((anomaly) => {
                     const note =
                       expenses.find((expense) => expense._id === anomaly.id)?.note ??
                       anomaly.category
@@ -415,6 +428,7 @@ function Dashboard() {
                       </div>
                     )
                   })}
+                  <MoreHint count={anomalies.length - ANOMALY_LIMIT} noun="anomalies" />
                 </div>
               )}
             </Card>
