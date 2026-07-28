@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { usePlaidLink } from 'react-plaid-link'
 import client from '../api/client'
+import Button from '../ui/Button'
 
 function ConnectBank({ onConnected }) {
   const [linkToken, setLinkToken] = useState(null)
@@ -63,14 +64,9 @@ function ConnectBank({ onConnected }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={busy}
-      className="rounded-lg bg-brand-600 text-white text-sm font-medium px-4 py-2 hover:bg-brand-700 disabled:opacity-50"
-    >
+    <Button variant="primary" stopPropagation onClick={handleClick} disabled={busy}>
       {busy ? 'Connecting…' : '+ Connect a bank'}
-    </button>
+    </Button>
   )
 }
 

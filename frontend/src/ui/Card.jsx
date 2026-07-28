@@ -5,6 +5,7 @@ function Card({ interactive = false, onClick, className = '', children, ...rest 
         tabIndex: 0,
         onClick,
         onKeyDown: (event) => {
+          if (event.target !== event.currentTarget) return
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
             onClick?.(event)
