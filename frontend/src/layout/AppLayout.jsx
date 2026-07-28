@@ -23,10 +23,20 @@ function AppLayout() {
   const [isDemo] = useState(isDemoSession())
   const [resetting, setResetting] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  const [navCollapsed, setNavCollapsed] = useState(
+    () => localStorage.getItem('navCollapsed') === '1'
+  )
   const autoSyncStarted = useRef(false)
   const navigate = useNavigate()
 
   const closeNav = useCallback(() => setNavOpen(false), [])
+
+  const toggleNavCollapsed = useCallback(() => {
+    setNavCollapsed((previous) => {
+      localStorage.setItem('navCollapsed', previous ? '0' : '1')
+      return !previous
+    })
+  }, [])
 
   useEffect(() => {
     if (!navOpen) return undefined
@@ -214,7 +224,9 @@ function AppLayout() {
         budgets={budgets}
         baseCurrency={baseCurrency}
         open={navOpen}
+        collapsed={navCollapsed}
         onClose={closeNav}
+        onToggleCollapse={toggleNavCollapsed}
       />
       <div className="flex-1 min-w-0 flex flex-col h-screen">
         {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}

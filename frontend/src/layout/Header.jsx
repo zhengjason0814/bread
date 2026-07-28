@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { CURRENCIES } from '../currencies'
 import { Select } from '../ui/Field'
 import Button from '../ui/Button'
+import PanelIcon from '../ui/PanelIcon'
 
 const TITLES = {
   '/': 'Dashboard',
@@ -14,7 +15,14 @@ const TITLES = {
   '/admin': 'Admin',
 }
 
-function Header({ baseCurrency, onBaseCurrencyChange, onLogout, isAdmin, onOpenNav, navOpen }) {
+function Header({
+  baseCurrency,
+  onBaseCurrencyChange,
+  onLogout,
+  isAdmin,
+  onOpenNav,
+  navOpen,
+}) {
   const { pathname } = useLocation()
 
   return (
@@ -22,11 +30,12 @@ function Header({ baseCurrency, onBaseCurrencyChange, onLogout, isAdmin, onOpenN
       <button
         type="button"
         onClick={onOpenNav}
-        aria-label="Open navigation"
+        aria-label="Show navigation"
         aria-expanded={navOpen}
-        className="flex-none text-xl leading-none px-2 py-1 -ml-2 rounded-full cursor-pointer text-ink-nav hover:bg-sand focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 lg:hidden"
+        title="Show navigation"
+        className="flex-none grid place-items-center w-8 h-8 -ml-1.5 rounded-full cursor-pointer text-ink-muted hover:bg-sand hover:text-ink focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 lg:hidden"
       >
-        ☰
+        <PanelIcon className="w-[18px] h-[18px]" />
       </button>
       <h1 className="font-display text-lg sm:text-xl leading-tight min-w-0 flex-1 truncate">
         {TITLES[pathname] ?? 'Dashboard'}
