@@ -13,3 +13,11 @@ export function budgetStatuses(expenses, budgets) {
     })
     .sort((a, b) => b.ratio - a.ratio)
 }
+
+export function safeToSpend(expenses, budgets) {
+  const statuses = budgetStatuses(expenses, budgets)
+  if (statuses.length === 0) return null
+  const limit = statuses.reduce((sum, status) => sum + status.limit, 0)
+  const spent = statuses.reduce((sum, status) => sum + status.spent, 0)
+  return limit - spent
+}
