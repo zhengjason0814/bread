@@ -33,7 +33,7 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email }) {
     0,
   )
 
-  const greeting = `${timeOfDayGreeting()}, ${displayName(email)}.`
+  const greeting = timeOfDayGreeting(displayName(email))
   const headline = budgetHeadline(expenses, budgets)
   const { typed: typedGreeting, done: greetingDone } = useTypewriter(greeting, 26)
   const { typed: typedHeadline, done: headlineDone } = useTypewriter(

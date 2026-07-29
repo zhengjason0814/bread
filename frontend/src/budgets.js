@@ -35,25 +35,25 @@ function overshootPercent(status) {
 
 function warnClause(warn) {
   if (warn.length === 0) return ''
-  if (warn.length === 1) return `, and ${warn[0].category} is close to its limit`
-  return `, and ${warn.length} others are close to their limits`
+  if (warn.length === 1) return `, and ${warn[0].category} is getting toasty`
+  return `, and ${warn.length} others are getting toasty`
 }
 
 export function budgetHeadline(expenses, budgets) {
   const statuses = budgetStatuses(expenses, budgets)
-  if (statuses.length === 0) return 'Set a budget to start tracking your limits.'
+  if (statuses.length === 0) return "Let's get a budget in the oven!"
 
   const over = statuses.filter((status) => status.level === 'over')
   const warn = statuses.filter((status) => status.level === 'warn')
 
-  if (over.length === 0 && warn.length === 0) return 'Every budget is on track this month.'
+  if (over.length === 0 && warn.length === 0) return 'Every budget is rising beautifully this month!'
 
   const onTrackCount = statuses.length - over.length - warn.length
-  const restClause = onTrackCount > 0 ? ' — everything else is on track.' : '.'
+  const restClause = onTrackCount > 0 ? ' — the rest are rising nicely!' : '!'
 
   if (over.length === 0) {
-    if (warn.length === 1) return `${warn[0].category} is close to its limit${restClause}`
-    return `${warn.length} budgets are close to their limits, ${warn[0].category} most of all${restClause}`
+    if (warn.length === 1) return `Careful, ${warn[0].category} is getting toasty${restClause}`
+    return `${warn.length} budgets are getting toasty, ${warn[0].category} most of all${restClause}`
   }
 
   const worst = over[0]
@@ -62,14 +62,14 @@ export function budgetHeadline(expenses, budgets) {
   if (over.length === 1) {
     const lead =
       overshoot > 0
-        ? `${worst.category} is ${overshoot}% over budget`
-        : `${worst.category} is right at its limit`
+        ? `Oof, ${worst.category} is ${overshoot}% over budget`
+        : `${worst.category} is right at the crust`
     return warn.length === 0 ? `${lead}${restClause}` : `${lead}${warnClause(warn)}${restClause}`
   }
 
   const lead =
     overshoot > 0
-      ? `${over.length} budgets are over, ${worst.category} worst at ${overshoot}%`
-      : `${over.length} budgets are over, ${worst.category} furthest along`
+      ? `${over.length} budgets are overdone, ${worst.category} crispiest at ${overshoot}%`
+      : `${over.length} budgets are overdone, ${worst.category} furthest along`
   return warn.length === 0 ? `${lead}${restClause}` : `${lead}${warnClause(warn)}${restClause}`
 }

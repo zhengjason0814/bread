@@ -1,8 +1,8 @@
-export function timeOfDayGreeting(date = new Date()) {
+export function timeOfDayGreeting(name, date = new Date()) {
   const hour = date.getHours()
-  if (hour < 12) return 'Morning'
-  if (hour < 18) return 'Afternoon'
-  return 'Evening'
+  if (hour < 12) return `Rise and shine, ${name}!`
+  if (hour < 18) return `Fresh out the oven, ${name}!`
+  return `Time to loaf around, ${name}!`
 }
 
 export function displayName(email) {
