@@ -2,6 +2,14 @@ import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis } from 'rech
 import { compactMoney } from '../currencies'
 
 function MonthBars({ months, height, baseCurrency }) {
+  if (!months.some((month) => month.total > 0)) {
+    return (
+      <div style={{ height }} className="grid place-items-center">
+        <p className="font-display text-[19px] text-ink-muted">None yet!</p>
+      </div>
+    )
+  }
+
   const data = months.map((month) => ({
     label: new Date(`${month.monthKey}-01T00:00:00Z`).toLocaleDateString('en-US', {
       month: 'short',
