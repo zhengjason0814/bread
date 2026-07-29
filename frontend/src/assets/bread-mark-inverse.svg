@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Bread">
+  <path d="M7 26C7 16.9 14.6 11 24 11s17 5.9 17 15v7a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4v-7Z" fill="#fdfaf0"/>
+  <g fill="#cd8a36">
+    <path d="M0-5.4Q3.8 0 0 5.4Q-3.8 0 0-5.4Z" transform="translate(19.8 20.4) rotate(-5)"/>
+    <path d="M0-5.4Q3.8 0 0 5.4Q-3.8 0 0-5.4Z" transform="translate(28.2 20.4) rotate(-5)"/>
+  </g>
+</svg>

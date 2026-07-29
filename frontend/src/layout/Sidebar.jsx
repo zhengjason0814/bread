@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { safeToSpend } from '../budgets'
 import { formatMoney } from '../currencies'
 import Label from '../ui/Label'
-import BreadMark from '../ui/BreadMark'
+import breadMarkInverse from '../assets/bread-mark-inverse.svg'
 import PanelIcon from '../ui/PanelIcon'
 import {
   AnomalyIcon,
@@ -60,7 +60,7 @@ function Sidebar({ expenses, budgets, baseCurrency, open, collapsed, onClose, on
                 collapsed ? 'lg:mx-auto' : ''
               }`}
             >
-              <BreadMark className="w-5 h-5" />
+              <img src={breadMarkInverse} alt="" className="w-5 h-5" />
             </button>
             <span
               className={`font-display text-2xl whitespace-nowrap ${collapsed ? 'lg:hidden' : ''}`}

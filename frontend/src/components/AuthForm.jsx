@@ -5,7 +5,7 @@ import { saveToken } from '../auth'
 import { startDemo } from '../demo'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
-import BreadMark from '../ui/BreadMark'
+import breadMark from '../assets/bread-mark.svg'
 import { Field, Input } from '../ui/Field'
 
 function AuthForm({ title, endpoint, buttonLabel, footer }) {
@@ -49,7 +49,7 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
     <div className="min-h-screen bg-page flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-[420px]">
         <div className="flex items-center justify-center gap-3 mb-6">
-          <BreadMark className="w-12 h-12 text-accent" scoreClassName="stroke-accent-100" />
+          <img src={breadMark} alt="" className="w-12 h-12" />
           <span className="font-display text-2xl">Bread</span>
         </div>
 

@@ -1,4 +1,4 @@
-import BreadMark from '../ui/BreadMark'
+import breadMark from '../assets/bread-mark.svg'
 import Label from '../ui/Label'
 import { budgetHeadline } from '../budgets'
 import { formatMoney } from '../currencies'
@@ -21,9 +21,10 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email }) {
   return (
     <div className="flex items-center gap-x-[26px] gap-y-4 px-2.5 pt-1.5 pb-[22px] flex-wrap">
       <div className="flex-none w-[110px] h-[110px] sm:w-[170px] sm:h-[170px] rounded-full bg-sand-deep grid place-items-center">
-        <BreadMark
-          className="w-[72px] h-[72px] sm:w-[110px] sm:h-[110px] text-accent"
-          scoreClassName="stroke-accent-100"
+        <img
+          src={breadMark}
+          alt=""
+          className="w-[72px] h-[72px] sm:w-[110px] sm:h-[110px]"
         />
       </div>
       <div className="flex-1 min-w-0 sm:flex-none sm:max-w-[300px] bg-card rounded-tile px-5 py-4 shadow-card">
