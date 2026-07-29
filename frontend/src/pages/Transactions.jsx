@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import AddTransactionDialog from '../components/AddTransactionDialog'
 import ExpenseList from '../components/ExpenseList'
+import PagePeek from '../components/PagePeek'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
 import Label from '../ui/Label'
@@ -108,7 +109,8 @@ function Transactions() {
             </div>
           </div>
 
-          <Card className="flex-1 min-h-0 flex flex-col gap-3.5">
+          <Card className="relative mt-7 sm:mt-14 flex-1 min-h-0 flex flex-col gap-3.5">
+            <PagePeek />
             <div className="flex items-center gap-3.5 flex-wrap">
               <h2 className="font-display text-[22px]">Expenses &amp; Income</h2>
               <div className="flex gap-2">

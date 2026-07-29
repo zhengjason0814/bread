@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
+import PagePeek from './PagePeek'
 
 export function ListRow({ primary, description, amount, trailing }) {
   return (
@@ -21,7 +22,8 @@ function ListPage({ title, blurb, actions, children }) {
       <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>
         ← Back to dashboard
       </Button>
-      <Card className="flex flex-col gap-3.5 flex-1 min-h-0">
+      <Card className="relative mt-2 sm:mt-4 flex flex-col gap-3.5 flex-1 min-h-0">
+        <PagePeek />
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="font-display text-[19px] sm:text-[22px]">{title}</h2>
           {actions && <div className="ml-auto flex gap-2">{actions}</div>}

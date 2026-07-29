@@ -9,6 +9,7 @@ const LOAF_CENTRE_Y = 17.6
 const BASKET_LIFT = 1.4
 const BASKET_RIM_Y = 26.4
 const RIM_TOP = BASKET_RIM_Y - BASKET_LIFT
+const PEEK_HEIGHT = 23
 
 const EYE_POSITIONS = [
   { x: 19.8, y: 20.4 },
@@ -34,13 +35,14 @@ function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches
 }
 
-function BreadMascot({ className = '' }) {
+function BreadMascot({ className = '', basket = true }) {
   const clipId = useId()
   const riseClipId = useId()
   const svgRef = useRef(null)
   const frameRef = useRef(0)
   const [look, setLook] = useState(CENTRED)
   const [blinking, setBlinking] = useState(false)
+  const viewHeight = basket ? VIEWBOX : PEEK_HEIGHT
 
   useEffect(() => {
     if (prefersReducedMotion()) return undefined
@@ -54,7 +56,7 @@ function BreadMascot({ className = '' }) {
       setLook(
         EYES_IN_VIEWBOX.map((eye) => {
           const centreX = rect.left + (eye.x / VIEWBOX) * rect.width
-          const centreY = rect.top + (eye.y / VIEWBOX) * rect.height
+          const centreY = rect.top + (eye.y / viewHeight) * rect.height
           const dx = pointerX - centreX
           const dy = pointerY - centreY
           const distance = Math.hypot(dx, dy)
@@ -83,7 +85,7 @@ function BreadMascot({ className = '' }) {
       if (frameRef.current) cancelAnimationFrame(frameRef.current)
       frameRef.current = 0
     }
-  }, [])
+  }, [viewHeight])
 
   useEffect(() => {
     if (prefersReducedMotion()) return undefined
@@ -115,13 +117,19 @@ function BreadMascot({ className = '' }) {
   }, [])
 
   return (
-    <svg ref={svgRef} viewBox="0 0 48 48" fill="none" aria-hidden="true" className={className}>
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${VIEWBOX} ${viewHeight}`}
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
       <defs>
         <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
           <path d={EYE} />
         </clipPath>
         <clipPath id={riseClipId} clipPathUnits="userSpaceOnUse">
-          <rect x="0" y="0" width={VIEWBOX} height={RIM_TOP} />
+          <rect x="0" y="0" width={VIEWBOX} height={basket ? RIM_TOP : PEEK_HEIGHT} />
         </clipPath>
       </defs>
 
@@ -162,27 +170,29 @@ function BreadMascot({ className = '' }) {
         </g>
       </g>
 
-      <g transform={`translate(0 -${BASKET_LIFT})`}>
-        <path
-          d="M4.5 29h39l-3.5 11.6a3.4 3.4 0 0 1-3.3 2.5H11.3a3.4 3.4 0 0 1-3.3-2.5L4.5 29Z"
-          className="fill-accent-deep"
-        />
-        <path
-          d="M10.5 34h27M12 38.5h24"
-          className="stroke-accent-400"
-          strokeWidth="1.1"
-          strokeLinecap="round"
-          opacity="0.45"
-        />
-        <path
-          d="M17.5 31.5v11M24 31.5v11.5M30.5 31.5v11"
-          className="stroke-accent-400"
-          strokeWidth="0.9"
-          strokeLinecap="round"
-          opacity="0.3"
-        />
-        <rect x="4.5" y={BASKET_RIM_Y} width="39" height="5.2" rx="2.6" className="fill-card" />
-      </g>
+      {basket && (
+        <g transform={`translate(0 -${BASKET_LIFT})`}>
+          <path
+            d="M4.5 29h39l-3.5 11.6a3.4 3.4 0 0 1-3.3 2.5H11.3a3.4 3.4 0 0 1-3.3-2.5L4.5 29Z"
+            className="fill-accent-deep"
+          />
+          <path
+            d="M10.5 34h27M12 38.5h24"
+            className="stroke-accent-400"
+            strokeWidth="1.1"
+            strokeLinecap="round"
+            opacity="0.45"
+          />
+          <path
+            d="M17.5 31.5v11M24 31.5v11.5M30.5 31.5v11"
+            className="stroke-accent-400"
+            strokeWidth="0.9"
+            strokeLinecap="round"
+            opacity="0.3"
+          />
+          <rect x="4.5" y={BASKET_RIM_Y} width="39" height="5.2" rx="2.6" className="fill-card" />
+        </g>
+      )}
     </svg>
   )
 }

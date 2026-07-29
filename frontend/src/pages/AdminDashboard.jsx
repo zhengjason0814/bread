@@ -8,6 +8,7 @@ import Button from '../ui/Button'
 import Label from '../ui/Label'
 import { Table, Th, Td } from '../ui/Table'
 import { AdminSkeleton } from '../components/Skeletons'
+import PagePeek from '../components/PagePeek'
 
 function formatDate(value) {
   return new Date(value).toLocaleDateString(undefined, { timeZone: 'UTC' })
@@ -64,7 +65,8 @@ function AdminDashboard() {
             <StatCard label="Linked banks" value={stats.totals.bankCount} />
           </div>
 
-          <Card className="flex flex-col gap-3.5 flex-1 min-h-0">
+          <Card className="relative mt-7 sm:mt-14 flex flex-col gap-3.5 flex-1 min-h-0">
+            <PagePeek />
             <h2 className="font-display text-[22px]">Users</h2>
             {stats.users.length === 0 ? (
               <p className="text-sm text-ink-secondary">No users yet.</p>

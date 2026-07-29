@@ -15,6 +15,7 @@ import { monthlyTotals, samePointDelta } from '../trend'
 import { categoryColor } from '../categoryColors'
 import { formatMoney } from '../currencies'
 import { ChartsSkeleton } from '../components/Skeletons'
+import PagePeek from '../components/PagePeek'
 
 function monthName(monthKey) {
   return monthLabel(monthKey).split(' ')[0]
@@ -71,7 +72,8 @@ function Charts() {
             ← Back to dashboard
           </Button>
 
-          <Card className="flex flex-col gap-4">
+          <Card className="relative mt-2 sm:mt-4 flex flex-col gap-4">
+            <PagePeek />
             <div className="flex items-center justify-between flex-wrap gap-3">
               <h2 className="font-display text-[19px] sm:text-[22px]" aria-live="polite">
                 By category — {monthLabel(monthKey)}
