@@ -4,9 +4,11 @@ const LOAF = 'M7 26C7 16.9 14.6 11 24 11s17 5.9 17 15v7a4 4 0 0 1-4 4H11a4 4 0 0
 const EYE = 'M0-5.4Q3.8 0 0 5.4Q-3.8 0 0-5.4Z'
 
 const VIEWBOX = 48
-const LOAF_SCALE = 0.86
+const LOAF_SCALE = .67
 const LOAF_CENTRE_Y = 17.6
 const BASKET_LIFT = 1.4
+const BASKET_RIM_Y = 26.4
+const RIM_TOP = BASKET_RIM_Y - BASKET_LIFT
 
 const EYE_POSITIONS = [
   { x: 19.8, y: 20.4 },
@@ -34,6 +36,7 @@ function prefersReducedMotion() {
 
 function BreadMascot({ className = '' }) {
   const clipId = useId()
+  const riseClipId = useId()
   const svgRef = useRef(null)
   const frameRef = useRef(0)
   const [look, setLook] = useState(CENTRED)
@@ -117,32 +120,46 @@ function BreadMascot({ className = '' }) {
         <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
           <path d={EYE} />
         </clipPath>
+        <clipPath id={riseClipId} clipPathUnits="userSpaceOnUse">
+          <rect x="0" y="0" width={VIEWBOX} height={RIM_TOP} />
+        </clipPath>
       </defs>
 
-      <g transform={`translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE}) translate(-24 -24)`}>
-        <path d={LOAF} className="fill-accent" />
-        {EYE_POSITIONS.map((eye, index) => (
-          <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
-            {blinking ? (
-              <rect x="-1.9" y="-0.5" width="3.8" height="1" rx="0.5" className="fill-accent-100" />
-            ) : (
-              <>
-                <path d={EYE} className="fill-accent-100" />
-                <g clipPath={`url(#${clipId})`}>
-                  <g
-                    style={{
-                      transform: `translate(${look[index].x}px, ${look[index].y}px)`,
-                      transition: TRACK,
-                    }}
-                  >
-                    <circle r={PUPIL_RADIUS} className="fill-ink" />
-                    <circle cx="-0.6" cy="-0.75" r="0.5" className="fill-card" />
-                  </g>
-                </g>
-              </>
-            )}
+      <g clipPath={`url(#${riseClipId})`}>
+        <g className="motion-safe:animate-peek">
+          <g transform={`translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE}) translate(-24 -24)`}>
+            <path d={LOAF} className="fill-accent" />
+            {EYE_POSITIONS.map((eye, index) => (
+              <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
+                {blinking ? (
+                  <rect
+                    x="-1.9"
+                    y="-0.5"
+                    width="3.8"
+                    height="1"
+                    rx="0.5"
+                    className="fill-accent-100"
+                  />
+                ) : (
+                  <>
+                    <path d={EYE} className="fill-accent-100" />
+                    <g clipPath={`url(#${clipId})`}>
+                      <g
+                        style={{
+                          transform: `translate(${look[index].x}px, ${look[index].y}px)`,
+                          transition: TRACK,
+                        }}
+                      >
+                        <circle r={PUPIL_RADIUS} className="fill-ink" />
+                        <circle cx="-0.6" cy="-0.75" r="0.5" className="fill-card" />
+                      </g>
+                    </g>
+                  </>
+                )}
+              </g>
+            ))}
           </g>
-        ))}
+        </g>
       </g>
 
       <g transform={`translate(0 -${BASKET_LIFT})`}>
@@ -164,7 +181,7 @@ function BreadMascot({ className = '' }) {
           strokeLinecap="round"
           opacity="0.3"
         />
-        <rect x="4.5" y="26.4" width="39" height="5.2" rx="2.6" className="fill-card" />
+        <rect x="4.5" y={BASKET_RIM_Y} width="39" height="5.2" rx="2.6" className="fill-card" />
       </g>
     </svg>
   )

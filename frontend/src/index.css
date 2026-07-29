@@ -47,6 +47,23 @@
 
   --text-label: 11px;
   --tracking-label: 0.09em;
+
+  --animate-peek: peek 740ms ease-out 140ms both;
+
+  @keyframes peek {
+    0% {
+      transform: translateY(16px);
+    }
+    64% {
+      transform: translateY(0.5px);
+    }
+    82% {
+      transform: translateY(-0.16px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
 }
 
 body {
