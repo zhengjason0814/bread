@@ -45,10 +45,34 @@
   --shadow-card: 0 1px 2px rgba(46, 43, 37, 0.1);
   --shadow-lift: 0 12px 32px rgba(46, 43, 37, 0.14);
 
+  --drop-shadow-bubble: 0 4px 12px rgba(46, 43, 37, 0.18);
+
   --text-label: 11px;
   --tracking-label: 0.09em;
 
   --animate-peek: peek 740ms ease-out 140ms both;
+  --animate-wiggle: wiggle 620ms ease-out;
+
+  @keyframes wiggle {
+    0% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(-5deg);
+    }
+    45% {
+      transform: rotate(3.5deg);
+    }
+    70% {
+      transform: rotate(-2deg);
+    }
+    88% {
+      transform: rotate(1deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
 
   @keyframes peek {
     0% {

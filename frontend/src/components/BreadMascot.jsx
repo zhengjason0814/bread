@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 
 const LOAF = 'M7 26C7 16.9 14.6 11 24 11s17 5.9 17 15v7a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4v-7Z'
 const EYE = 'M0-5.4Q3.8 0 0 5.4Q-3.8 0 0-5.4Z'
+const HAPPY_EYE = 'M-2.3 1.3Q0-4 2.3 1.3'
 
 const VIEWBOX = 48
 const LOAF_SCALE = .67
@@ -10,6 +11,8 @@ const BASKET_LIFT = 1.4
 const BASKET_RIM_Y = 26.4
 const RIM_TOP = BASKET_RIM_Y - BASKET_LIFT
 const PEEK_HEIGHT = 23
+const LOAF_PATH_BOTTOM = 37
+const WIGGLE_PIVOT_Y = LOAF_CENTRE_Y + (LOAF_PATH_BOTTOM - 24) * LOAF_SCALE
 
 const EYE_POSITIONS = [
   { x: 19.8, y: 20.4 },
@@ -27,6 +30,7 @@ const FULL_TRAVEL_PX = 150
 const CENTRED = EYE_POSITIONS.map(() => ({ x: 0, y: 0 }))
 
 const BLINK_MS = 130
+const HAPPY_MS = 1600
 const TRACK = 'transform 140ms ease-out'
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
 
@@ -34,13 +38,27 @@ function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches
 }
 
-function BreadMascot({ className = '', basket = true }) {
+function BreadMascot({ className = '', basket = true, onPoke }) {
   const riseClipId = useId()
   const svgRef = useRef(null)
   const frameRef = useRef(0)
   const [look, setLook] = useState(CENTRED)
   const [blinking, setBlinking] = useState(false)
+  const [pokes, setPokes] = useState(0)
+  const [happy, setHappy] = useState(false)
   const viewHeight = basket ? VIEWBOX : PEEK_HEIGHT
+
+  function handlePoke() {
+    setPokes((count) => count + 1)
+    setHappy(true)
+    onPoke?.()
+  }
+
+  useEffect(() => {
+    if (!pokes) return undefined
+    const timer = setTimeout(() => setHappy(false), HAPPY_MS)
+    return () => clearTimeout(timer)
+  }, [pokes])
 
   useEffect(() => {
     if (prefersReducedMotion()) return undefined
@@ -120,7 +138,8 @@ function BreadMascot({ className = '', basket = true }) {
       viewBox={`0 0 ${VIEWBOX} ${viewHeight}`}
       fill="none"
       aria-hidden="true"
-      className={className}
+      onClick={handlePoke}
+      className={`cursor-pointer ${className}`}
     >
       <defs>
         <clipPath id={riseClipId} clipPathUnits="userSpaceOnUse">
@@ -130,24 +149,44 @@ function BreadMascot({ className = '', basket = true }) {
 
       <g clipPath={`url(#${riseClipId})`}>
         <g className="motion-safe:animate-peek">
-          <g transform={`translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE}) translate(-24 -24)`}>
-            <path d={LOAF} className="fill-accent" />
-            {EYE_POSITIONS.map((eye, index) => (
-              <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
-                <g
-                  style={{
-                    transform: `translate(${look[index].x}px, ${look[index].y}px)`,
-                    transition: TRACK,
-                  }}
-                >
-                  {blinking ? (
-                    <rect x="-1.9" y="-0.5" width="3.8" height="1" rx="0.5" className="fill-card" />
-                  ) : (
-                    <path d={EYE} className="fill-card" />
-                  )}
+          <g
+            key={pokes}
+            className={pokes ? 'motion-safe:animate-wiggle' : ''}
+            style={{ transformOrigin: `24px ${WIGGLE_PIVOT_Y}px` }}
+          >
+            <g transform={`translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE}) translate(-24 -24)`}>
+              <path d={LOAF} className="fill-accent" />
+              {EYE_POSITIONS.map((eye, index) => (
+                <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
+                  <g
+                    style={{
+                      transform: `translate(${look[index].x}px, ${look[index].y}px)`,
+                      transition: TRACK,
+                    }}
+                  >
+                    {happy ? (
+                      <path
+                        d={HAPPY_EYE}
+                        className="stroke-card"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                      />
+                    ) : blinking ? (
+                      <rect
+                        x="-1.9"
+                        y="-0.5"
+                        width="3.8"
+                        height="1"
+                        rx="0.5"
+                        className="fill-card"
+                      />
+                    ) : (
+                      <path d={EYE} className="fill-card" />
+                    )}
+                  </g>
                 </g>
-              </g>
-            ))}
+              ))}
+            </g>
           </g>
         </g>
       </g>
