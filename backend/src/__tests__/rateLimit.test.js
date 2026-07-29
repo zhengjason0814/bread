@@ -12,6 +12,9 @@ describe('rate limiting', () => {
         .send({ email: 'nobody@example.com', password: 'wrong' })
     }
     expect(last.status).toBe(429)
+    expect(last.body.error).toMatch(/sign-in attempts/)
+    expect(last.body.retryAfter).toBeGreaterThan(0)
+    expect(last.headers['retry-after']).toBe(String(last.body.retryAfter))
     delete process.env.AUTH_RATELIMIT_TEST
     delete process.env.AUTH_RATELIMIT_MAX
   })
@@ -24,6 +27,9 @@ describe('rate limiting', () => {
       last = await request(app).get('/api/health')
     }
     expect(last.status).toBe(429)
+    expect(last.body.error).toMatch(/oven needs a minute/)
+    expect(last.body.retryAfter).toBeGreaterThan(0)
+    expect(last.body.retryAfter).toBeLessThanOrEqual(60)
     delete process.env.API_RATELIMIT_TEST
     delete process.env.API_RATELIMIT_MAX
   })

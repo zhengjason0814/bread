@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
 const { requireDemo } = require('../middleware/demoGuards')
+const { tooManyRequests } = require('../middleware/rateLimit')
 const { seedDemoUser, clearDemoUserData } = require('../services/demoData')
 const { clearInsightsCache } = require('../services/insightsCache')
 
@@ -17,9 +18,7 @@ const demoLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: () => Number(process.env.DEMO_RATELIMIT_MAX) || 5,
   skip: () => process.env.NODE_ENV === 'test' && process.env.DEMO_RATELIMIT_TEST !== '1',
-  handler: (req, res) => {
-    res.status(429).json({ error: 'Too many demo sessions from this address. Please try again later.' })
-  },
+  handler: tooManyRequests('Too many demo sessions started — the oven needs a minute.'),
 })
 
 function issueDemoToken(userId) {

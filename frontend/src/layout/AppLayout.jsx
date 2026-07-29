@@ -4,6 +4,8 @@ import client from '../api/client'
 import { clearToken, isDemoSession } from '../auth'
 import { resetDemo, endDemo } from '../demo'
 import DemoBanner from '../components/DemoBanner'
+import RateLimitBanner from '../components/RateLimitBanner'
+import { onRateLimited } from '../rateLimit'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
@@ -26,10 +28,24 @@ function AppLayout() {
   const [navCollapsed, setNavCollapsed] = useState(
     () => localStorage.getItem('navCollapsed') === '1'
   )
+  const [rateLimitNotice, setRateLimitNotice] = useState(null)
   const autoSyncStarted = useRef(false)
   const navigate = useNavigate()
 
   const closeNav = useCallback(() => setNavOpen(false), [])
+
+  const clearRateLimitNotice = useCallback(() => setRateLimitNotice(null), [])
+
+  useEffect(
+    () =>
+      onRateLimited(({ message, seconds }) => {
+        const until = Date.now() + seconds * 1000
+        setRateLimitNotice((current) =>
+          current && current.until >= until ? current : { message, until }
+        )
+      }),
+    []
+  )
 
   const toggleNavCollapsed = useCallback(() => {
     setNavCollapsed((previous) => {
@@ -85,6 +101,8 @@ function AppLayout() {
       if (err.response?.status === 401) {
         clearToken()
         navigate('/login')
+      } else if (err.response?.data?.rateLimit) {
+        setError(err.response.data.rateLimit.message)
       } else {
         setError('Could not load your data')
       }
@@ -229,6 +247,13 @@ function AppLayout() {
         onToggleCollapse={toggleNavCollapsed}
       />
       <div className="flex-1 min-w-0 flex flex-col h-screen">
+        {rateLimitNotice && (
+          <RateLimitBanner
+            message={rateLimitNotice.message}
+            until={rateLimitNotice.until}
+            onExpire={clearRateLimitNotice}
+          />
+        )}
         {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
         <Header
           baseCurrency={baseCurrency}
