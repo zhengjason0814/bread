@@ -21,6 +21,13 @@ describe('app hardening', () => {
     expect(app.get('trust proxy')).toBe(1)
   })
 
+  test('no CORS headers when FRONTEND_ORIGIN is unset, keeping same-origin deploys unchanged', async () => {
+    const res = await request(app)
+      .get('/api/health')
+      .set('Origin', 'https://bread.example.com')
+    expect(res.headers['access-control-allow-origin']).toBeUndefined()
+  })
+
   test('unhandled route error returns clean JSON 500, not an HTML stack trace', async () => {
     const spy = jest.spyOn(Expense, 'find').mockImplementation(() => {
       throw new Error('boom')

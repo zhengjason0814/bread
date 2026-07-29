@@ -1,5 +1,6 @@
 const os = require('os')
 const express = require('express')
+const cors = require('cors')
 const { apiLimiter } = require('./middleware/rateLimit')
 const authRoutes = require('./routes/auth')
 const expenseRoutes = require('./routes/expenses')
@@ -10,8 +11,16 @@ const budgetRoutes = require('./routes/budgets')
 const adminRoutes = require('./routes/admin')
 const demoRoutes = require('./routes/demo')
 
+const allowedOrigins = (process.env.FRONTEND_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
 const app = express()
-app.set('trust proxy', 1)
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 1)
+if (allowedOrigins.length > 0) {
+  app.use(cors({ origin: allowedOrigins }))
+}
 app.use(express.json())
 app.use('/api', apiLimiter)
 
