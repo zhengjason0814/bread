@@ -21,8 +21,8 @@ const EYES_IN_VIEWBOX = EYE_POSITIONS.map((eye) => ({
   y: LOAF_CENTRE_Y + (eye.y - 24) * LOAF_SCALE,
 }))
 
-const MAX_LOOK_X = 1.2
-const MAX_LOOK_Y = 1.2
+const MAX_LOOK_X = 2.5
+const MAX_LOOK_Y = 2.5
 const FULL_TRAVEL_PX = 150
 const CENTRED = EYE_POSITIONS.map(() => ({ x: 0, y: 0 }))
 
