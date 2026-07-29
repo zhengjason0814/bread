@@ -21,9 +21,8 @@ const EYES_IN_VIEWBOX = EYE_POSITIONS.map((eye) => ({
   y: LOAF_CENTRE_Y + (eye.y - 24) * LOAF_SCALE,
 }))
 
-const PUPIL_RADIUS = 1.9
-const MAX_LOOK_X = 0.7
-const MAX_LOOK_Y = 2
+const MAX_LOOK_X = 1.2
+const MAX_LOOK_Y = 1.2
 const FULL_TRAVEL_PX = 150
 const CENTRED = EYE_POSITIONS.map(() => ({ x: 0, y: 0 }))
 
@@ -36,7 +35,6 @@ function prefersReducedMotion() {
 }
 
 function BreadMascot({ className = '', basket = true }) {
-  const clipId = useId()
   const riseClipId = useId()
   const svgRef = useRef(null)
   const frameRef = useRef(0)
@@ -125,9 +123,6 @@ function BreadMascot({ className = '', basket = true }) {
       className={className}
     >
       <defs>
-        <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
-          <path d={EYE} />
-        </clipPath>
         <clipPath id={riseClipId} clipPathUnits="userSpaceOnUse">
           <rect x="0" y="0" width={VIEWBOX} height={basket ? RIM_TOP : PEEK_HEIGHT} />
         </clipPath>
@@ -139,31 +134,18 @@ function BreadMascot({ className = '', basket = true }) {
             <path d={LOAF} className="fill-accent" />
             {EYE_POSITIONS.map((eye, index) => (
               <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
-                {blinking ? (
-                  <rect
-                    x="-1.9"
-                    y="-0.5"
-                    width="3.8"
-                    height="1"
-                    rx="0.5"
-                    className="fill-accent-100"
-                  />
-                ) : (
-                  <>
-                    <path d={EYE} className="fill-accent-100" />
-                    <g clipPath={`url(#${clipId})`}>
-                      <g
-                        style={{
-                          transform: `translate(${look[index].x}px, ${look[index].y}px)`,
-                          transition: TRACK,
-                        }}
-                      >
-                        <circle r={PUPIL_RADIUS} className="fill-ink" />
-                        <circle cx="-0.6" cy="-0.75" r="0.5" className="fill-card" />
-                      </g>
-                    </g>
-                  </>
-                )}
+                <g
+                  style={{
+                    transform: `translate(${look[index].x}px, ${look[index].y}px)`,
+                    transition: TRACK,
+                  }}
+                >
+                  {blinking ? (
+                    <rect x="-1.9" y="-0.5" width="3.8" height="1" rx="0.5" className="fill-card" />
+                  ) : (
+                    <path d={EYE} className="fill-card" />
+                  )}
+                </g>
               </g>
             ))}
           </g>
