@@ -7,6 +7,7 @@ const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
 const { requireDemo } = require('../middleware/demoGuards')
 const { tooManyRequests } = require('../middleware/rateLimit')
+const wakeMl = require('../middleware/wakeMl')
 const { seedDemoUser, clearDemoUserData } = require('../services/demoData')
 const { clearInsightsCache } = require('../services/insightsCache')
 
@@ -37,7 +38,7 @@ async function sweepExpiredDemos() {
   }
 }
 
-router.post('/', demoLimiter, async (req, res) => {
+router.post('/', demoLimiter, wakeMl, async (req, res) => {
   await sweepExpiredDemos()
 
   const passwordHash = await bcrypt.hash(randomUUID(), 10)

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const requireAuth = require('../middleware/auth')
 const { authLimiter } = require('../middleware/rateLimit')
+const wakeMl = require('../middleware/wakeMl')
 const { isAdminEmail } = require('../services/adminAccess')
 const { clearInsightsCache } = require('../services/insightsCache')
 
@@ -13,7 +14,7 @@ function issueToken(user) {
   return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
 
-router.post('/signup', authLimiter, async (req, res) => {
+router.post('/signup', authLimiter, wakeMl, async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' })
@@ -30,7 +31,7 @@ router.post('/signup', authLimiter, async (req, res) => {
   res.status(201).json({ token: issueToken(user) })
 })
 
-router.post('/login', authLimiter, async (req, res) => {
+router.post('/login', authLimiter, wakeMl, async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' })

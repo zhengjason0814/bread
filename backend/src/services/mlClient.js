@@ -2,6 +2,8 @@ const axios = require('axios')
 
 const INTERACTIVE_TIMEOUT_MS = 3000
 const INSIGHT_TIMEOUT_MS = Number(process.env.ML_INSIGHT_TIMEOUT_MS) || INTERACTIVE_TIMEOUT_MS
+const WAKE_TIMEOUT_MS = 60000
+const WAKE_THROTTLE_MS = 60000
 
 const client = axios.create({
   baseURL: process.env.ML_SERVICE_URL || 'http://localhost:8000',
@@ -30,4 +32,13 @@ async function detectRecurring(expenses) {
   return data
 }
 
-module.exports = { predict, classify, detectAnomalies, detectRecurring }
+let lastWakeAt = 0
+
+function wake() {
+  if (process.env.NODE_ENV === 'test') return
+  if (Date.now() - lastWakeAt < WAKE_THROTTLE_MS) return
+  lastWakeAt = Date.now()
+  client.get('/health', { timeout: WAKE_TIMEOUT_MS }).catch(() => {})
+}
+
+module.exports = { predict, classify, detectAnomalies, detectRecurring, wake }
