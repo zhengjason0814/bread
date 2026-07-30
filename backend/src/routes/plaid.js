@@ -25,6 +25,14 @@ const router = express.Router()
 router.use(requireAuth)
 router.use(blockDemo)
 
+function headlineBalance(account) {
+  const balances = account.balances ?? {}
+  if (account.type === 'depository') {
+    return balances.available ?? balances.current
+  }
+  return balances.current
+}
+
 async function syncItem(item) {
   const accounts = await Account.find({ item: item._id })
   const accountIdByPlaidId = new Map(
@@ -37,7 +45,7 @@ async function syncItem(item) {
   for (const account of accountsResponse.data.accounts) {
     const accountId = accountIdByPlaidId.get(account.account_id)
     if (!accountId) continue
-    await Account.updateOne({ _id: accountId }, { balance: account.balances?.current })
+    await Account.updateOne({ _id: accountId }, { balance: headlineBalance(account) })
   }
 
   let cursor = item.cursor

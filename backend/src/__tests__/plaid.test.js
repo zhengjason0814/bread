@@ -12,6 +12,7 @@ jest.mock('../services/receiptStorage')
 
 const plaidClient = require('../config/plaid')
 const receiptStorage = require('../services/receiptStorage')
+const Account = require('../models/Account')
 const app = require('../app')
 
 async function signupAndGetToken(email) {
@@ -392,5 +393,69 @@ describe('DELETE /api/plaid/items/:id', () => {
 
     expect(response.status).toBe(200)
     expect(receiptStorage.deleteReceipt).toHaveBeenCalledWith('receipts/u/e/plaid.jpg')
+  })
+})
+
+describe('balances reflect pending activity', () => {
+  function mockAccounts(accounts) {
+    plaidClient.accountsGet.mockResolvedValue({ data: { accounts } })
+  }
+
+  const checking = (balances) => ({
+    account_id: 'acc-1',
+    name: 'Plaid Checking',
+    mask: '0000',
+    type: 'depository',
+    subtype: 'checking',
+    balances: { iso_currency_code: 'USD', ...balances },
+  })
+
+  const card = (balances) => ({
+    account_id: 'acc-1',
+    name: 'Plaid Card',
+    mask: '4444',
+    type: 'credit',
+    subtype: 'credit card',
+    balances: { iso_currency_code: 'USD', ...balances },
+  })
+
+  it('stores the available balance for depository accounts', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    mockAccounts([checking({ current: 1922.39, available: 1894.95 })])
+
+    await link(token)
+
+    const account = await Account.findOne({ plaidAccountId: 'acc-1' })
+    expect(account.balance).toBe(1894.95)
+  })
+
+  it('falls back to the current balance when available is missing', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    mockAccounts([checking({ current: 1922.39, available: null })])
+
+    await link(token)
+
+    const account = await Account.findOne({ plaidAccountId: 'acc-1' })
+    expect(account.balance).toBe(1922.39)
+  })
+
+  it('keeps the current balance for credit accounts, which is the amount owed', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    mockAccounts([card({ current: 2103.62, available: 5000 })])
+
+    await link(token)
+
+    const account = await Account.findOne({ plaidAccountId: 'acc-1' })
+    expect(account.balance).toBe(2103.62)
+  })
+
+  it('keeps the current balance for a credit account reporting no available credit', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    mockAccounts([card({ current: 600.52, available: null })])
+
+    await link(token)
+
+    const account = await Account.findOne({ plaidAccountId: 'acc-1' })
+    expect(account.balance).toBe(600.52)
   })
 })
