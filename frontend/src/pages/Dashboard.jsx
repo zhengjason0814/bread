@@ -353,7 +353,7 @@ function Dashboard() {
 
             <Card
               interactive
-              onClick={() => navigate('/charts')}
+              onClick={() => navigate('/predictions')}
               className={`flex flex-col gap-2.5 ${CARD_CAP}`}
             >
               <h2 className="font-display text-[18px]">Spending outlook</h2>

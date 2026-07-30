@@ -1,8 +1,27 @@
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis } from 'recharts'
 import { compactMoney } from '../currencies'
 
-function MonthBars({ months, height, baseCurrency }) {
-  if (!months.some((month) => month.total > 0)) {
+const PAST_FILL = '#eddcae'
+const CURRENT_FILL = '#cd8a36'
+const FORECAST_FILL = '#fcf2d7'
+const FORECAST_STROKE = '#cd8a36'
+const FORECAST_DASH = '3 2.5'
+
+function monthShortLabel(monthKey) {
+  return new Date(`${monthKey}-01T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short',
+    timeZone: 'UTC',
+  })
+}
+
+function fillFor(kind) {
+  if (kind === 'forecast') return FORECAST_FILL
+  return kind === 'current' ? CURRENT_FILL : PAST_FILL
+}
+
+function MonthBars({ months, height, baseCurrency, forecast }) {
+  const hasHistory = months.some((month) => month.total > 0)
+  if (!hasHistory && !forecast) {
     return (
       <div style={{ height }} className="grid place-items-center">
         <p className="font-display text-[19px] text-ink-muted">None yet!</p>
@@ -10,13 +29,24 @@ function MonthBars({ months, height, baseCurrency }) {
     )
   }
 
-  const data = months.map((month) => ({
-    label: new Date(`${month.monthKey}-01T00:00:00Z`).toLocaleDateString('en-US', {
-      month: 'short',
-      timeZone: 'UTC',
-    }),
+  const data = months.map((month, index) => ({
+    label: monthShortLabel(month.monthKey),
     total: month.total,
+    topLabel: compactMoney(month.total, baseCurrency),
+    kind: index === months.length - 1 ? 'current' : 'past',
   }))
+
+  if (forecast) {
+    data.push({
+      label: monthShortLabel(forecast.monthKey),
+      total: [forecast.low, forecast.high],
+      topLabel: `${compactMoney(forecast.low, baseCurrency)}–${compactMoney(
+        forecast.high,
+        baseCurrency
+      )}`,
+      kind: 'forecast',
+    })
+  }
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -28,13 +58,17 @@ function MonthBars({ months, height, baseCurrency }) {
           tick={{ fill: '#82796a', fontSize: 12 }}
         />
         <Bar dataKey="total" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-          {data.map((entry, index) => (
-            <Cell key={entry.label} fill={index === data.length - 1 ? '#cd8a36' : '#eddcae'} />
+          {data.map((entry) => (
+            <Cell
+              key={entry.label}
+              fill={fillFor(entry.kind)}
+              stroke={entry.kind === 'forecast' ? FORECAST_STROKE : undefined}
+              strokeDasharray={entry.kind === 'forecast' ? FORECAST_DASH : undefined}
+            />
           ))}
           <LabelList
-            dataKey="total"
+            dataKey="topLabel"
             position="top"
-            formatter={(value) => compactMoney(value, baseCurrency)}
             style={{ fill: '#645c50', fontSize: 11 }}
           />
         </Bar>

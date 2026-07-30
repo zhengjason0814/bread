@@ -10,6 +10,7 @@ import {
   BarChartIcon,
   BudgetIcon,
   DashboardIcon,
+  ForecastIcon,
   MoneyBagIcon,
   RecurringIcon,
 } from '../ui/NavIcons'
@@ -18,6 +19,7 @@ const NAV = [
   { to: '/', label: 'Dashboard', end: true, Icon: DashboardIcon },
   { to: '/transactions', label: 'Expenses & Income', Icon: MoneyBagIcon },
   { to: '/charts', label: 'Charts', Icon: BarChartIcon },
+  { to: '/predictions', label: 'Predictions', Icon: ForecastIcon },
   { to: '/anomalies', label: 'Anomalies', Icon: AnomalyIcon },
   { to: '/budgets', label: 'Budgets', Icon: BudgetIcon },
   { to: '/recurring', label: 'Recurring Charges', Icon: RecurringIcon },

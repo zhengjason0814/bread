@@ -7,6 +7,7 @@ import Signup from './pages/Signup.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Charts from './pages/Charts.jsx'
+import Predictions from './pages/Predictions.jsx'
 import Anomalies from './pages/Anomalies.jsx'
 import Budgets from './pages/Budgets.jsx'
 import Recurring from './pages/Recurring.jsx'
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')).render(
           <Route index element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="charts" element={<Charts />} />
+          <Route path="predictions" element={<Predictions />} />
           <Route path="anomalies" element={<Anomalies />} />
           <Route path="budgets" element={<Budgets />} />
           <Route path="recurring" element={<Recurring />} />

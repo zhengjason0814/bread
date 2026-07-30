@@ -40,6 +40,16 @@ export function BarChartIcon({ className = '' }) {
   )
 }
 
+export function ForecastIcon({ className = '' }) {
+  return (
+    <svg {...BASE} className={className}>
+      <path d="M3.4 14.8 7.2 11l2.6 2.1" />
+      <path d="M9.8 13.1 16 6.6" strokeDasharray="2.4 2.2" />
+      <path d="M12.8 6.4h3.6V10" />
+    </svg>
+  )
+}
+
 export function AnomalyIcon({ className = '' }) {
   return (
     <svg {...BASE} className={className}>

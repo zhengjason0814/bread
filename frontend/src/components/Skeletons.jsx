@@ -170,6 +170,33 @@ export function ChartsSkeleton() {
   )
 }
 
+export function PredictionsSkeleton() {
+  return (
+    <LoadingRegion className="flex flex-col gap-4">
+      <SkeletonLine className="w-40 self-start" />
+
+      <Card className="flex flex-col gap-3.5">
+        <SkeletonLine className="w-44 h-5" />
+        <SkeletonLine className="w-72" />
+        <div className="flex flex-wrap gap-x-16 gap-y-5 mt-1">
+          <StatBlock valueClassName="w-40 h-9" />
+          <StatBlock valueClassName="w-60 h-9" />
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <SkeletonLine className="w-52 h-5" />
+        <div className="flex items-end gap-4 h-[260px]">
+          {[...BAR_HEIGHTS, 'h-[70%]'].map((height, index) => (
+            <Skeleton key={index} className={`flex-1 ${height}`} />
+          ))}
+        </div>
+        <SkeletonLine className="w-64" />
+      </Card>
+    </LoadingRegion>
+  )
+}
+
 export function TransactionsSkeleton() {
   return (
     <LoadingRegion className="flex flex-col gap-4 h-full">
