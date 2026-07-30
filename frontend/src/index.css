@@ -52,6 +52,17 @@
 
   --animate-peek: peek 740ms ease-out 140ms both;
   --animate-wiggle: wiggle 620ms ease-out;
+  --animate-ember: ember 4200ms ease-in-out infinite;
+
+  @keyframes ember {
+    0%,
+    100% {
+      opacity: 0.68;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 
   @keyframes wiggle {
     0% {

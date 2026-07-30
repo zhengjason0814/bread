@@ -29,6 +29,14 @@ const MAX_LOOK_Y = 2.5
 const FULL_TRAVEL_PX = 150
 const CENTRED = EYE_POSITIONS.map(() => ({ x: 0, y: 0 }))
 
+const AURA_LAYERS = [
+  { scale: 1.14, className: 'fill-danger', opacity: 0.5 },
+  { scale: 1.08, className: 'fill-accent', opacity: 0.55 },
+  { scale: 1.03, className: 'fill-accent-400', opacity: 0.6 },
+]
+const AURA_BLUR = 1.9
+const AURA_OPACITY = 0.5
+
 const BLINK_MS = 130
 const HAPPY_MS = 1600
 const TRACK = 'transform 140ms ease-out'
@@ -38,8 +46,13 @@ function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches
 }
 
+function loafTransform(scale = 1) {
+  return `translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE * scale}) translate(-24 -24)`
+}
+
 function BreadMascot({ className = '', basket = true, onPoke }) {
   const riseClipId = useId()
+  const auraBlurId = useId()
   const svgRef = useRef(null)
   const frameRef = useRef(0)
   const [look, setLook] = useState(CENTRED)
@@ -145,7 +158,37 @@ function BreadMascot({ className = '', basket = true, onPoke }) {
         <clipPath id={riseClipId} clipPathUnits="userSpaceOnUse">
           <rect x="0" y="0" width={VIEWBOX} height={basket ? RIM_TOP : PEEK_HEIGHT} />
         </clipPath>
+        <filter
+          id={auraBlurId}
+          x="-40%"
+          y="-40%"
+          width="180%"
+          height="180%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feGaussianBlur stdDeviation={AURA_BLUR} />
+        </filter>
       </defs>
+
+      <g className="motion-safe:animate-peek">
+        <g
+          key={`aura-${pokes}`}
+          className={pokes ? 'motion-safe:animate-wiggle' : ''}
+          style={{ transformOrigin: `24px ${WIGGLE_PIVOT_Y}px` }}
+        >
+          <g
+            className="motion-safe:animate-ember"
+            filter={`url(#${auraBlurId})`}
+            opacity={AURA_OPACITY}
+          >
+            {AURA_LAYERS.map((layer) => (
+              <g key={layer.scale} transform={loafTransform(layer.scale)}>
+                <path d={LOAF} className={layer.className} opacity={layer.opacity} />
+              </g>
+            ))}
+          </g>
+        </g>
+      </g>
 
       <g clipPath={`url(#${riseClipId})`}>
         <g className="motion-safe:animate-peek">
@@ -154,7 +197,7 @@ function BreadMascot({ className = '', basket = true, onPoke }) {
             className={pokes ? 'motion-safe:animate-wiggle' : ''}
             style={{ transformOrigin: `24px ${WIGGLE_PIVOT_Y}px` }}
           >
-            <g transform={`translate(24 ${LOAF_CENTRE_Y}) scale(${LOAF_SCALE}) translate(-24 -24)`}>
+            <g transform={loafTransform()}>
               <path d={LOAF} className="fill-accent" />
               {EYE_POSITIONS.map((eye, index) => (
                 <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
