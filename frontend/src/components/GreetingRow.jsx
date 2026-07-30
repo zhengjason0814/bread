@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import BreadMascot from './BreadMascot'
 import Label from '../ui/Label'
 import { budgetHeadline } from '../budgets'
 import { formatMoney } from '../currencies'
-import { displayName, timeOfDayGreeting } from '../greeting'
+import { displayName, greetingParts, timeOfDayGreeting } from '../greeting'
 import { useTypewriter } from '../typewriter'
 
 const POKE_LINES = ['Hey that tickles!', 'Stop that!', 'Woahhh!']
 const POKE_MS = 1500
+const MAX_NAME_LENGTH = 40
 
 function nextPokeLine(current) {
   const options = POKE_LINES.filter((line) => line !== current)
@@ -28,7 +29,45 @@ function SpokenLine({ text, typed, showCaret }) {
   )
 }
 
-function GreetingRow({ accounts, expenses, budgets, baseCurrency, email }) {
+function NameField({ value, onCommit, onCancel }) {
+  const [draft, setDraft] = useState(value)
+  const cancelledRef = useRef(false)
+
+  function handleKeyDown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.currentTarget.blur()
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      cancelledRef.current = true
+      onCancel()
+    }
+  }
+
+  function handleBlur() {
+    if (cancelledRef.current) {
+      cancelledRef.current = false
+      return
+    }
+    onCommit(draft)
+  }
+
+  return (
+    <input
+      autoFocus
+      value={draft}
+      maxLength={MAX_NAME_LENGTH}
+      onChange={(event) => setDraft(event.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      aria-label="Your display name"
+      placeholder="Your name"
+      className="font-display text-lg w-full bg-sand-deep rounded-[10px] px-2.5 py-1 outline-2 outline-accent"
+    />
+  )
+}
+
+function GreetingRow({ accounts, expenses, budgets, baseCurrency, email, name, onNameChange }) {
   const deposits = accounts.filter((account) => account.type === 'depository')
   const credits = accounts.filter((account) => account.type === 'credit')
   const bankBalance = deposits.reduce(
@@ -44,12 +83,22 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email }) {
 
   const [pokeLine, setPokeLine] = useState(null)
   const [introDone, setIntroDone] = useState(false)
+  const [editingName, setEditingName] = useState(false)
 
-  const greeting = timeOfDayGreeting(displayName(email))
+  const shownName = displayName(email, name)
+  const greeting = timeOfDayGreeting(shownName)
+  const { prefix, suffix } = greetingParts(shownName)
+
+  function handleNameCommit(draft) {
+    setEditingName(false)
+    const next = draft.trim()
+    if (next !== (name ?? '').trim()) onNameChange(next)
+  }
   const headline = budgetHeadline(expenses, budgets)
   const spoken = pokeLine ?? greeting
 
   const { typed: typedGreeting, done: greetingDone } = useTypewriter(spoken, 26)
+  const showName = greetingDone && !pokeLine && !editingName
   const { typed: typedHeadline, done: headlineDone } = useTypewriter(introDone ? headline : '', 14)
 
   useEffect(() => {
@@ -75,9 +124,37 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email }) {
           aria-hidden="true"
           className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rotate-45 rounded-[3px] bg-card"
         />
-        <span className="sr-only">{pokeLine ?? `${greeting} ${headline}`}</span>
+        {showName ? (
+          <span className="sr-only">{headline}</span>
+        ) : (
+          <span className="sr-only">{pokeLine ?? `${greeting} ${headline}`}</span>
+        )}
         <p className="font-display text-lg">
-          <SpokenLine text={spoken} typed={typedGreeting} showCaret={!greetingDone} />
+          {editingName ? (
+            <NameField
+              value={name ?? ''}
+              onCommit={handleNameCommit}
+              onCancel={() => setEditingName(false)}
+            />
+          ) : showName ? (
+            <span>
+              {prefix}
+              <button
+                type="button"
+                onClick={() => setEditingName(true)}
+                aria-label={`Edit your display name, currently ${shownName}`}
+                className="rounded-[4px] underline decoration-dotted decoration-ink-faint underline-offset-4 hover:decoration-ink focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+              >
+                {shownName}
+                {suffix}
+                <span aria-hidden="true" className="ml-1.5 text-[13px] text-ink-faint">
+                  ✎
+                </span>
+              </button>
+            </span>
+          ) : (
+            <SpokenLine text={spoken} typed={typedGreeting} showCaret={!greetingDone} />
+          )}
         </p>
         {!pokeLine && (
           <p className="text-[13px] text-ink-secondary mt-1">

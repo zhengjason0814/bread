@@ -38,6 +38,8 @@ function Dashboard() {
   const { loading, error, ...data } = useOutletContext()
   const {
     email,
+    name,
+    onNameChange,
     expenses,
     accounts,
     prediction,
@@ -76,6 +78,8 @@ function Dashboard() {
             budgets={budgets}
             baseCurrency={baseCurrency}
             email={email}
+            name={name}
+            onNameChange={onNameChange}
           />
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(320px,0.8fr)_1.2fr] gap-5 pb-6 border-b border-rule items-stretch">
             <Card

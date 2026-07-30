@@ -10,6 +10,8 @@ const { clearInsightsCache } = require('../services/insightsCache')
 
 const router = express.Router()
 
+const MAX_NAME_LENGTH = 40
+
 function issueToken(user) {
   return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
@@ -47,7 +49,9 @@ router.post('/login', authLimiter, wakeMl, async (req, res) => {
 })
 
 router.get('/me', requireAuth, async (req, res) => {
-  const user = await User.findById(req.userId).select('email baseCurrency budgets createdAt isDemo')
+  const user = await User.findById(req.userId).select(
+    'email name baseCurrency budgets createdAt isDemo'
+  )
   if (!user) {
     return res.status(401).json({ error: 'Missing or invalid token' })
   }
@@ -57,18 +61,35 @@ router.get('/me', requireAuth, async (req, res) => {
 })
 
 router.patch('/me', requireAuth, async (req, res) => {
-  const { baseCurrency } = req.body
-  if (!baseCurrency) {
-    return res.status(400).json({ error: 'baseCurrency is required' })
+  const { baseCurrency, name } = req.body
+  const updates = {}
+
+  if (baseCurrency !== undefined) {
+    if (!baseCurrency) {
+      return res.status(400).json({ error: 'baseCurrency is required' })
+    }
+    updates.baseCurrency = baseCurrency
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.userId,
-    { baseCurrency },
-    { returnDocument: 'after' }
-  ).select('email baseCurrency budgets createdAt')
+  if (name !== undefined) {
+    const trimmed = String(name).trim()
+    if (trimmed.length > MAX_NAME_LENGTH) {
+      return res.status(400).json({ error: `Name must be ${MAX_NAME_LENGTH} characters or fewer` })
+    }
+    updates.name = trimmed
+  }
 
-  await clearInsightsCache(req.userId)
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: 'Nothing to update' })
+  }
+
+  const user = await User.findByIdAndUpdate(req.userId, updates, {
+    returnDocument: 'after',
+  }).select('email name baseCurrency budgets createdAt')
+
+  if (updates.baseCurrency) {
+    await clearInsightsCache(req.userId)
+  }
 
   res.json({ user })
 })

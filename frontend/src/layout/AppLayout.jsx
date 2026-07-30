@@ -16,6 +16,7 @@ function AppLayout() {
   const [anomalies, setAnomalies] = useState([])
   const [baseCurrency, setBaseCurrency] = useState('USD')
   const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [budgets, setBudgets] = useState({})
   const [recurring, setRecurring] = useState(null)
@@ -90,6 +91,7 @@ function AppLayout() {
       ])
       setBaseCurrency(meResponse.data.user.baseCurrency)
       setEmail(meResponse.data.user.email)
+      setName(meResponse.data.user.name ?? '')
       setIsAdmin(meResponse.data.user.isAdmin ?? false)
       setBudgets(meResponse.data.user.budgets ?? {})
       setExpenses(expensesResponse.data.expenses)
@@ -181,6 +183,18 @@ function AppLayout() {
     )
   }
 
+  async function handleNameChange(next) {
+    const previous = name
+    setName(next)
+    try {
+      const response = await client.patch('/auth/me', { name: next })
+      setName(response.data.user.name ?? '')
+    } catch {
+      setName(previous)
+      setError('Could not save your name')
+    }
+  }
+
   async function handleBaseCurrencyChange(event) {
     const next = event.target.value
     setBaseCurrency(next)
@@ -219,6 +233,7 @@ function AppLayout() {
     budgets,
     baseCurrency,
     email,
+    name,
     isAdmin,
     isDemo,
     loading,
@@ -232,6 +247,7 @@ function AppLayout() {
     onSync: handleSync,
     onAccountDisconnected: handleAccountDisconnected,
     onReceiptChange: handleReceiptChange,
+    onNameChange: handleNameChange,
     reload: loadData,
   }
 
