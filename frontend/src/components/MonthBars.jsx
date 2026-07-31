@@ -1,4 +1,13 @@
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { compactMoney } from '../currencies'
 
 const PAST_FILL = '#eddcae'
@@ -6,6 +15,10 @@ const CURRENT_FILL = '#cd8a36'
 const FORECAST_FILL = '#fcf2d7'
 const FORECAST_STROKE = '#cd8a36'
 const FORECAST_DASH = '3 2.5'
+const AXIS_LINE = '#b7a9a9'
+const GRID_LINE = '#e6ddd9'
+const TICK_INK = '#574a4a'
+const AXIS_FONT = { fontSize: 11, fontFamily: 'Figtree, system-ui, sans-serif' }
 
 function monthShortLabel(monthKey) {
   return new Date(`${monthKey}-01T00:00:00Z`).toLocaleDateString('en-US', {
@@ -50,14 +63,22 @@ function MonthBars({ months, height, baseCurrency, forecast }) {
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
+      <BarChart data={data} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
+        <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: '#82796a', fontSize: 12 }}
+          axisLine={{ stroke: AXIS_LINE }}
+          tickLine={{ stroke: AXIS_LINE }}
+          tick={{ fill: TICK_INK, ...AXIS_FONT }}
         />
-        <Bar dataKey="total" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+        <YAxis
+          width={54}
+          axisLine={{ stroke: AXIS_LINE }}
+          tickLine={{ stroke: AXIS_LINE }}
+          tick={{ fill: TICK_INK, ...AXIS_FONT }}
+          tickFormatter={(value) => compactMoney(value, baseCurrency)}
+        />
+        <Bar dataKey="total" radius={[3, 3, 0, 0]} isAnimationActive={false}>
           {data.map((entry) => (
             <Cell
               key={entry.label}
@@ -69,7 +90,7 @@ function MonthBars({ months, height, baseCurrency, forecast }) {
           <LabelList
             dataKey="topLabel"
             position="top"
-            style={{ fill: '#645c50', fontSize: 11 }}
+            style={{ fill: '#2a1f1f', fontWeight: 600, ...AXIS_FONT }}
           />
         </Bar>
       </BarChart>

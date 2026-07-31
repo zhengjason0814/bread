@@ -4,19 +4,19 @@
   --font-display: "Caprasimo", Georgia, serif;
   --font-sans: "Figtree", system-ui, sans-serif;
 
-  --color-page: #fdfaf0;
-  --color-panel: #faf6e8;
+  --color-page: #faf6e9;
+  --color-panel: #f5f0e0;
   --color-card: #ffffff;
-  --color-sand: #f4eddb;
-  --color-sand-deep: #fdfaf1;
-  --color-track: #eee7db;
-  --color-track-muted: #eddcae;
+  --color-sand: #f0ebd9;
+  --color-sand-deep: #fbf8ee;
+  --color-track: #e8e2d2;
+  --color-track-muted: #ded4bb;
 
-  --color-ink: #201e1d;
-  --color-ink-secondary: #645c50;
-  --color-ink-muted: #82796a;
-  --color-ink-faint: #a19786;
-  --color-ink-nav: #474238;
+  --color-ink: #2a1f1f;
+  --color-ink-secondary: #574a4a;
+  --color-ink-muted: #756666;
+  --color-ink-faint: #9b8d8d;
+  --color-ink-nav: #3d3030;
 
   --color-accent: #cd8a36;
   --color-accent-hover: #b17426;
@@ -28,24 +28,38 @@
   --color-accent-300: #f2c67e;
   --color-accent-400: #dfa947;
 
-  --color-danger: #c0492f;
+  --color-danger: #a52a2a;
+  --color-danger-soft: #f6e4e4;
 
-  --color-sage: #8fa073;
-  --color-sage-light: #ccdbb2;
-  --color-sage-100: #f0fae1;
-  --color-sage-deep: #56633f;
-  --color-sage-darkest: #3d472b;
+  --color-crust: #cd8a36;
+  --color-crust-light: #dfa947;
+  --color-crust-deep: #95591a;
+  --color-crust-pale: #fcf2d7;
+  --color-crust-ember: #c0492f;
 
-  --color-rule: rgba(32, 30, 29, 0.1);
-  --color-rule-soft: rgba(32, 30, 29, 0.08);
+  --color-butter: #ffd700;
+  --color-butter-soft: #fff6c2;
 
-  --radius-card: 28px;
-  --radius-tile: 26px;
+  --color-notice: #ff8c00;
+  --color-notice-soft: #fff1de;
+  --color-notice-ink: #8a4b00;
 
-  --shadow-card: 0 1px 2px rgba(46, 43, 37, 0.1);
-  --shadow-lift: 0 12px 32px rgba(46, 43, 37, 0.14);
+  --color-sage: #2e7d32;
+  --color-sage-light: #a5d6a7;
+  --color-sage-100: #e8f5e9;
+  --color-sage-deep: #1c4e1f;
+  --color-sage-darkest: #133516;
 
-  --drop-shadow-bubble: 0 4px 12px rgba(46, 43, 37, 0.18);
+  --color-rule: #d7ccc8;
+  --color-rule-soft: #e6ddd9;
+
+  --radius-card: 20px;
+  --radius-tile: 18px;
+
+  --shadow-card: 3px 3px 5px rgba(0, 0, 0, 0.08);
+  --shadow-lift: 4px 5px 10px rgba(0, 0, 0, 0.13);
+
+  --drop-shadow-bubble: 3px 3px 5px rgba(0, 0, 0, 0.08);
 
   --text-label: 11px;
   --tracking-label: 0.09em;
@@ -105,4 +119,5 @@ body {
   font-family: var(--font-sans);
   background: var(--color-page);
   color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
 }

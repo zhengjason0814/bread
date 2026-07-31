@@ -22,7 +22,7 @@ function Recurring() {
       {loading ? (
         <ListRowsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : unavailable ? (
         <>
           <p className="text-sm text-ink-secondary">

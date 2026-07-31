@@ -21,7 +21,7 @@ function Card({ interactive = false, lift = false, onClick, className = '', chil
   return (
     <div
       {...interactiveProps}
-      className={`bg-card rounded-card px-5 py-[18px] shadow-card ${
+      className={`bg-card rounded-card border border-rule px-5 py-[18px] shadow-card ${
         interactive || lift ? LIFT : ''
       } ${interactive ? `cursor-pointer ${FOCUS_RING}` : ''} ${className}`}
       {...rest}

@@ -76,7 +76,7 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
               />
             </Field>
 
-            {error && <p className="text-sm text-accent-deep">{error}</p>}
+            {error && <p className="text-sm text-danger">{error}</p>}
 
             <Button type="submit" variant="primary" disabled={submitting} className="w-full">
               {submitting ? 'Please wait…' : buttonLabel}

@@ -3,7 +3,9 @@ import { categoryTagStyle } from '../categoryColors'
 const VARIANTS = {
   accent: 'bg-accent-100 text-accent-deep',
   sage: 'bg-sage-100 text-sage-darkest',
-  outline: 'border border-accent text-accent',
+  danger: 'bg-danger-soft text-danger',
+  notice: 'bg-notice-soft text-notice-ink',
+  outline: 'border border-accent text-accent-deep',
   category: '',
 }
 

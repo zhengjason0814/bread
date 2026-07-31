@@ -33,7 +33,7 @@ function DeltaHeadline({ delta }) {
   }
   return (
     <p className="text-sm text-ink-secondary">
-      <span className={delta.direction === 'up' ? 'text-accent-deep' : 'text-sage-deep'}>
+      <span className={delta.direction === 'up' ? 'text-danger' : 'text-sage-deep'}>
         {delta.direction === 'up' ? '↑' : '↓'}
       </span>{' '}
       <span className="font-medium text-ink">{delta.percent}%</span> vs {previousName} (through
@@ -65,7 +65,7 @@ function Charts() {
       {loading ? (
         <ChartsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : (
         <>
           <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>

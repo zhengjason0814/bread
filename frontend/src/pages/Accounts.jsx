@@ -89,7 +89,7 @@ function Accounts() {
       {loading ? (
         <ListRowsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : groups.length === 0 ? (
         <p className="text-sm text-ink-secondary">
           No linked accounts yet. Connect a bank to import transactions automatically.

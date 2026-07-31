@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import BreadMascot from './BreadMascot'
+import Card from '../ui/Card'
 import Label from '../ui/Label'
 import { budgetHeadline } from '../budgets'
 import { formatMoney } from '../currencies'
@@ -112,17 +113,18 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email, name, o
   }, [pokeLine])
 
   return (
-    <div className="flex items-center gap-x-[26px] gap-y-4 px-2.5 pt-1.5 pb-[22px] flex-wrap">
-      <div className="flex-none w-[110px] h-[110px] sm:w-[170px] sm:h-[170px] rounded-full bg-sand-deep grid place-items-center">
+    <div className="flex flex-wrap items-stretch gap-4 pb-5">
+      <Card className="flex items-center gap-4 flex-1 basis-[420px] min-w-[300px]">
+      <div className="flex-none w-[96px] h-[96px] sm:w-[132px] sm:h-[132px] rounded-full bg-sand-deep grid place-items-center">
         <BreadMascot
-          className="w-[100px] h-[100px] sm:w-[156px] sm:h-[156px]"
+          className="w-[88px] h-[88px] sm:w-[120px] sm:h-[120px]"
           onPoke={() => setPokeLine((current) => nextPokeLine(current))}
         />
       </div>
-      <div className="relative flex-1 min-w-0 sm:flex-none sm:max-w-[300px] bg-card rounded-tile px-5 py-4 drop-shadow-bubble">
+      <div className="relative flex-1 min-w-0 bg-sand rounded-tile px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rotate-45 rounded-[3px] bg-card"
+          className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rotate-45 rounded-[3px] bg-sand"
         />
         {showName ? (
           <span className="sr-only">{headline}</span>
@@ -166,22 +168,29 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email, name, o
           </p>
         )}
       </div>
-      <div className="w-full lg:w-auto lg:ml-auto flex flex-wrap gap-x-11 gap-y-4 pr-2.5">
-        <div>
-          <Label>Bank balance</Label>
-          <p className="font-display text-[30px] sm:text-[40px] leading-[1.1] mt-1.5">
-            {formatMoney(bankBalance, baseCurrency)}
+      </Card>
+
+      <Card className="flex flex-col justify-center flex-1 basis-[200px] min-w-[190px]">
+        <Label>Bank balance</Label>
+        <p className="font-display text-[30px] sm:text-[36px] leading-[1.1] mt-1.5">
+          {formatMoney(bankBalance, baseCurrency)}
+        </p>
+        <p className="text-[12px] text-ink-muted mt-1">
+          across {deposits.length} {deposits.length === 1 ? 'account' : 'accounts'}
+        </p>
+      </Card>
+
+      {credits.length > 0 && (
+        <Card className="flex flex-col justify-center flex-1 basis-[200px] min-w-[190px]">
+          <Label>Credit owed</Label>
+          <p className="font-display text-[30px] sm:text-[36px] leading-[1.1] mt-1.5 text-danger">
+            {formatMoney(creditOwed, baseCurrency)}
           </p>
-        </div>
-        {credits.length > 0 && (
-          <div>
-            <Label>Credit owed</Label>
-            <p className="font-display text-[30px] sm:text-[40px] leading-[1.1] mt-1.5 text-accent-deep">
-              {formatMoney(creditOwed, baseCurrency)}
-            </p>
-          </div>
-        )}
-      </div>
+          <p className="text-[12px] text-ink-muted mt-1">
+            across {credits.length} {credits.length === 1 ? 'card' : 'cards'}
+          </p>
+        </Card>
+      )}
     </div>
   )
 }

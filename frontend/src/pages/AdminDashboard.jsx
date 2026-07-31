@@ -51,7 +51,7 @@ function AdminDashboard() {
       {loading ? (
         <AdminSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : (
         <>
           <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>

@@ -62,7 +62,7 @@ function Transactions() {
       {loading ? (
         <TransactionsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : (
         <>
           <Button variant="ghost" className="self-start" onClick={() => navigate('/')}>
@@ -83,7 +83,7 @@ function Transactions() {
             {creditAccounts.length > 0 && (
               <div>
                 <Label>Credit owed</Label>
-                <p className="font-display text-[30px] sm:text-[40px] leading-tight mt-1.5 text-accent-deep">
+                <p className="font-display text-[30px] sm:text-[40px] leading-tight mt-1.5 text-danger">
                   {formatMoney(creditOwed, baseCurrency)}
                 </p>
               </div>

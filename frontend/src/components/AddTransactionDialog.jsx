@@ -249,7 +249,7 @@ function AddTransactionDialog({ open, onClose, onAdded, baseCurrency }) {
           />
         </label>
 
-        {error && <p className="text-sm text-accent-deep">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
         <div className="flex justify-end gap-2.5">
           <Button variant="secondary" onClick={handleClose}>

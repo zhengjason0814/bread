@@ -51,9 +51,11 @@ function CategoryDonut({ slices, total, size, centerLabel, baseCurrency }) {
             formatter={(value) => formatMoney(value, baseCurrency)}
             contentStyle={{
               background: '#ffffff',
-              border: '1px solid rgba(32,30,29,0.1)',
-              borderRadius: 16,
+              border: '1px solid #d7ccc8',
+              borderRadius: 12,
               fontSize: 13,
+              fontFamily: 'Figtree, system-ui, sans-serif',
+              boxShadow: '3px 3px 5px rgba(0,0,0,0.08)',
             }}
           />
         </PieChart>

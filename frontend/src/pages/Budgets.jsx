@@ -54,12 +54,8 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
       <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
         <span className="font-semibold w-full sm:w-auto sm:min-w-[190px] flex items-center gap-2">
           {status.category}
-          {status.level === 'over' && (
-            <Tag variant="accent" className="bg-accent-200 text-accent-deep">
-              over budget
-            </Tag>
-          )}
-          {status.level === 'warn' && <Tag variant="accent">close to limit</Tag>}
+          {status.level === 'over' && <Tag variant="danger">over budget</Tag>}
+          {status.level === 'warn' && <Tag variant="notice">close to limit</Tag>}
         </span>
         <span className="text-ink-muted flex-1 min-w-0">
           {percent}% of a{' '}
@@ -177,7 +173,7 @@ function Budgets() {
       {loading ? (
         <ListRowsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : (
         <>
           {adding && (

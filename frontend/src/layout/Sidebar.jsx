@@ -48,7 +48,7 @@ function Sidebar({ expenses, budgets, baseCurrency, open, collapsed, onClose, on
         } ${collapsed ? 'lg:w-[68px]' : 'lg:w-[232px]'}`}
       >
         <div
-          className={`h-full w-[232px] px-4 py-[22px] flex flex-col gap-[26px] overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out ${
+          className={`h-full w-[232px] px-4 pt-4 pb-[22px] flex flex-col gap-5 overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out ${
             collapsed ? 'lg:w-[68px] lg:px-2.5 lg:items-center' : 'lg:w-[232px]'
           }`}
         >
@@ -90,7 +90,7 @@ function Sidebar({ expenses, budgets, baseCurrency, open, collapsed, onClose, on
             </button>
           </div>
 
-          <nav className={`flex flex-col gap-1 w-full ${collapsed ? 'lg:items-center' : ''}`}>
+          <nav className={`flex flex-col gap-2 w-full ${collapsed ? 'lg:items-center' : ''}`}>
             {NAV.map(({ to, label, end, Icon }) => (
               <NavLink
                 key={to}
@@ -99,9 +99,13 @@ function Sidebar({ expenses, budgets, baseCurrency, open, collapsed, onClose, on
                 onClick={onClose}
                 title={label}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3.5 py-[9px] rounded-full text-sm transition-colors ${FOCUS_RING} ${
+                  `flex items-center gap-3 px-3.5 py-[11px] rounded-full text-sm transition-colors ${FOCUS_RING} ${
                     collapsed ? 'lg:w-11 lg:h-11 lg:px-0 lg:gap-0 lg:justify-center lg:rounded-2xl' : ''
-                  } ${isActive ? 'bg-accent text-page' : 'text-ink-nav hover:bg-sand'}`
+                  } ${
+                    isActive
+                      ? 'bg-accent text-page font-medium'
+                      : 'text-ink-nav hover:bg-sand'
+                  }`
                 }
               >
                 <Icon className="w-[18px] h-[18px] flex-none" />
@@ -111,7 +115,7 @@ function Sidebar({ expenses, budgets, baseCurrency, open, collapsed, onClose, on
           </nav>
 
           <div
-            className={`mt-auto w-full bg-sand rounded-tile px-[18px] py-4 ${
+            className={`w-full bg-accent-100 border border-accent-200 rounded-tile px-[18px] py-4 ${
               collapsed ? 'lg:hidden' : ''
             }`}
           >

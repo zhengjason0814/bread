@@ -71,7 +71,7 @@ function Anomalies() {
       {loading ? (
         <ListRowsSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : anomalies.length === 0 ? (
         <p className="text-sm text-ink-secondary">No unusual charges detected.</p>
       ) : (

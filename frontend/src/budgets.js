@@ -16,8 +16,8 @@ export function budgetStatuses(expenses, budgets) {
 
 export function budgetBarClass(ratio) {
   if (ratio < 0.3) return 'bg-sage'
-  if (ratio < 0.6) return 'bg-accent-300'
-  if (ratio < 0.8) return 'bg-accent-400'
+  if (ratio < 0.6) return 'bg-butter'
+  if (ratio < 0.8) return 'bg-notice'
   return 'bg-danger'
 }
 

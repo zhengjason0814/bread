@@ -69,7 +69,7 @@ function Dashboard() {
       {loading ? (
         <DashboardSkeleton />
       ) : error ? (
-        <p className="text-accent-deep text-center">{error}</p>
+        <p className="text-danger text-center">{error}</p>
       ) : (
         <>
           <GreetingRow
@@ -276,15 +276,12 @@ function Dashboard() {
                       <div className="flex items-center text-[13px]">
                         <span className="font-semibold">{status.category}</span>
                         {status.level === 'over' && (
-                          <Tag
-                            variant="accent"
-                            className="ml-2 bg-accent-200 text-accent-deep"
-                          >
+                          <Tag variant="danger" className="ml-2">
                             over budget
                           </Tag>
                         )}
                         {status.level === 'warn' && (
-                          <Tag variant="accent" className="ml-2">
+                          <Tag variant="notice" className="ml-2">
                             close to limit
                           </Tag>
                         )}

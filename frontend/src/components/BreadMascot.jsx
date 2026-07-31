@@ -30,9 +30,9 @@ const FULL_TRAVEL_PX = 150
 const CENTRED = EYE_POSITIONS.map(() => ({ x: 0, y: 0 }))
 
 const AURA_LAYERS = [
-  { scale: 1.14, className: 'fill-danger', opacity: 0.5 },
-  { scale: 1.08, className: 'fill-accent', opacity: 0.55 },
-  { scale: 1.03, className: 'fill-accent-400', opacity: 0.6 },
+  { scale: 1.14, className: 'fill-crust-ember', opacity: 0.5 },
+  { scale: 1.08, className: 'fill-crust', opacity: 0.55 },
+  { scale: 1.03, className: 'fill-crust-light', opacity: 0.6 },
 ]
 const AURA_BLUR = 1.9
 const AURA_OPACITY = 0.5
@@ -198,7 +198,7 @@ function BreadMascot({ className = '', basket = true, onPoke }) {
             style={{ transformOrigin: `24px ${WIGGLE_PIVOT_Y}px` }}
           >
             <g transform={loafTransform()}>
-              <path d={LOAF} className="fill-accent" />
+              <path d={LOAF} className="fill-crust" />
               {EYE_POSITIONS.map((eye, index) => (
                 <g key={eye.x} transform={`translate(${eye.x} ${eye.y}) rotate(-5)`}>
                   <g
@@ -238,18 +238,18 @@ function BreadMascot({ className = '', basket = true, onPoke }) {
         <g transform={`translate(0 -${BASKET_LIFT})`}>
           <path
             d="M4.5 29h39l-3.5 11.6a3.4 3.4 0 0 1-3.3 2.5H11.3a3.4 3.4 0 0 1-3.3-2.5L4.5 29Z"
-            className="fill-accent-deep"
+            className="fill-crust-deep"
           />
           <path
             d="M10.5 34h27M12 38.5h24"
-            className="stroke-accent-400"
+            className="stroke-crust-light"
             strokeWidth="1.1"
             strokeLinecap="round"
             opacity="0.45"
           />
           <path
             d="M17.5 31.5v11M24 31.5v11.5M30.5 31.5v11"
-            className="stroke-accent-400"
+            className="stroke-crust-light"
             strokeWidth="0.9"
             strokeLinecap="round"
             opacity="0.3"

@@ -21,7 +21,7 @@ function RateLimitBanner({ message, until, onExpire }) {
   return (
     <div
       role="status"
-      className="bg-accent-100 border-b border-accent-300 px-4 sm:px-[30px] py-3 text-sm text-accent-deep"
+      className="bg-notice-soft border-b border-notice px-4 sm:px-[30px] py-3 text-sm text-notice-ink"
     >
       <span className="sr-only">{message}</span>
       <span aria-hidden="true">{rateLimitMessage(message, remaining)}</span>
