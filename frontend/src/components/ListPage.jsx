@@ -3,9 +3,10 @@ import Button from '../ui/Button'
 import Card from '../ui/Card'
 import PagePeek from './PagePeek'
 
-export function ListRow({ primary, description, amount, trailing }) {
+export function ListRow({ leading, primary, description, amount, trailing }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 py-[13px] border-b border-rule-soft text-sm">
+      {leading}
       <span className="font-semibold w-full sm:w-auto sm:min-w-[190px]">{primary}</span>
       <span className="text-ink-muted flex-1 min-w-0">{description}</span>
       {amount && <span className="font-semibold whitespace-nowrap">{amount}</span>}

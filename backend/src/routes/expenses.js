@@ -102,6 +102,22 @@ router.delete('/:id', async (req, res) => {
   res.json({ deleted: deleted._id })
 })
 
+router.post('/dismiss-anomalies', async (req, res) => {
+  const { ids } = req.body
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: 'ids must be a non-empty array' })
+  }
+
+  const result = await Expense.updateMany(
+    { _id: { $in: ids }, user: req.userId },
+    { anomalyDismissed: true }
+  )
+
+  await clearInsightsCache(req.userId)
+
+  res.json({ dismissed: result.modifiedCount })
+})
+
 router.post('/:id/dismiss-anomaly', async (req, res) => {
   const updated = await Expense.findOneAndUpdate(
     { _id: req.params.id, user: req.userId },

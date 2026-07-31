@@ -58,6 +58,72 @@ describe('POST /api/expenses/:id/dismiss-anomaly', () => {
   })
 })
 
+describe('POST /api/expenses/dismiss-anomalies', () => {
+  it('sets anomalyDismissed on multiple own expenses in one call', async () => {
+    const token = await signupAndGetToken()
+    const first = await createExpense(token)
+    const second = await createExpense(token)
+
+    const res = await request(app)
+      .post('/api/expenses/dismiss-anomalies')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ ids: [first._id, second._id] })
+
+    expect(res.status).toBe(200)
+    expect(res.body.dismissed).toBe(2)
+
+    const list = await request(app)
+      .get('/api/expenses')
+      .set('Authorization', `Bearer ${token}`)
+    const byId = Object.fromEntries(list.body.expenses.map((e) => [e._id, e]))
+    expect(byId[first._id].anomalyDismissed).toBe(true)
+    expect(byId[second._id].anomalyDismissed).toBe(true)
+  })
+
+  it('only dismisses ids owned by the requesting user', async () => {
+    const ownerToken = await signupAndGetToken('owner@b.com')
+    const ownerExpense = await createExpense(ownerToken)
+    const strangerToken = await signupAndGetToken('stranger@b.com')
+    const strangerExpense = await createExpense(strangerToken)
+
+    const res = await request(app)
+      .post('/api/expenses/dismiss-anomalies')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ ids: [ownerExpense._id, strangerExpense._id] })
+
+    expect(res.status).toBe(200)
+    expect(res.body.dismissed).toBe(1)
+
+    const strangerList = await request(app)
+      .get('/api/expenses')
+      .set('Authorization', `Bearer ${strangerToken}`)
+    expect(strangerList.body.expenses[0].anomalyDismissed).toBe(false)
+  })
+
+  it('400s when ids is missing or empty', async () => {
+    const token = await signupAndGetToken()
+
+    const missing = await request(app)
+      .post('/api/expenses/dismiss-anomalies')
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+    expect(missing.status).toBe(400)
+
+    const empty = await request(app)
+      .post('/api/expenses/dismiss-anomalies')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ ids: [] })
+    expect(empty.status).toBe(400)
+  })
+
+  it('401s without a token', async () => {
+    const res = await request(app)
+      .post('/api/expenses/dismiss-anomalies')
+      .send({ ids: ['123'] })
+    expect(res.status).toBe(401)
+  })
+})
+
 describe('GET /api/insights/prediction', () => {
   it('relays ML result and adds baseCurrency', async () => {
     mlClient.predict.mockResolvedValue({

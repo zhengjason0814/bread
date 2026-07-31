@@ -152,6 +152,12 @@ function AppLayout() {
     setAnomalies((current) => current.filter((anomaly) => anomaly.id !== id))
   }
 
+  async function handleDismissAnomalies(ids) {
+    await client.post('/expenses/dismiss-anomalies', { ids })
+    const dismissed = new Set(ids)
+    setAnomalies((current) => current.filter((anomaly) => !dismissed.has(anomaly.id)))
+  }
+
   async function handleBudgetSet(category, amount) {
     const response = await client.put('/budgets', { category, amount })
     setBudgets(response.data.budgets)
@@ -242,6 +248,7 @@ function AppLayout() {
     onExpenseAdded: handleExpenseAdded,
     onExpenseDeleted: handleExpenseDeleted,
     onDismissAnomaly: handleDismissAnomaly,
+    onDismissAnomalies: handleDismissAnomalies,
     onBudgetSet: handleBudgetSet,
     onBudgetRemoved: handleBudgetRemoved,
     onSync: handleSync,
