@@ -28,6 +28,7 @@ function Transactions() {
     onExpenseAdded,
     onExpenseDeleted,
     onReceiptChange,
+    onSplitChange,
   } = data
 
   const navigate = useNavigate()
@@ -144,6 +145,7 @@ function Transactions() {
                 baseCurrency={baseCurrency}
                 onDelete={onExpenseDeleted}
                 onReceiptChange={onReceiptChange}
+                onSplitChange={onSplitChange}
                 anomalyIds={anomalyIds}
                 recurringIds={recurringIds}
                 isDemo={isDemo}

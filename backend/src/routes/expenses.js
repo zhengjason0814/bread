@@ -134,6 +134,52 @@ router.post('/:id/dismiss-anomaly', async (req, res) => {
   res.json({ expense: updated })
 })
 
+router.post('/:id/split', async (req, res) => {
+  const { share } = req.body
+
+  const expense = await Expense.findOne({ _id: req.params.id, user: req.userId })
+  if (!expense) {
+    return res.status(404).json({ error: 'Expense not found' })
+  }
+  if (expense.type !== 'expense') {
+    return res.status(400).json({ error: 'Only expenses can be split' })
+  }
+
+  const total = expense.isShared ? expense.sharedTotal : expense.amount
+  if (typeof share !== 'number' || !(share > 0) || share > total) {
+    return res.status(400).json({ error: `share must be greater than 0 and at most ${total}` })
+  }
+
+  expense.sharedTotal = total
+  expense.amount = share
+  expense.isShared = true
+  await expense.save()
+
+  await clearInsightsCache(req.userId)
+
+  const user = await User.findById(req.userId).select('baseCurrency')
+  const [converted] = await convertExpenses([expense.toObject()], user.baseCurrency)
+  res.json({ expense: converted })
+})
+
+router.delete('/:id/split', async (req, res) => {
+  const expense = await Expense.findOne({ _id: req.params.id, user: req.userId })
+  if (!expense || !expense.isShared) {
+    return res.status(404).json({ error: 'Expense is not split' })
+  }
+
+  expense.amount = expense.sharedTotal
+  expense.isShared = false
+  expense.sharedTotal = undefined
+  await expense.save()
+
+  await clearInsightsCache(req.userId)
+
+  const user = await User.findById(req.userId).select('baseCurrency')
+  const [converted] = await convertExpenses([expense.toObject()], user.baseCurrency)
+  res.json({ expense: converted })
+})
+
 router.post('/:id/receipt', blockDemo, receiptUpload, async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'A receipt file (JPEG, PNG, WebP, or PDF) is required' })

@@ -71,24 +71,32 @@ async function syncItem(item) {
     const accountId = accountIdByPlaidId.get(transaction.account_id)
     if (!accountId) continue
 
-    await Expense.findOneAndUpdate(
-      { plaidTransactionId: transaction.transaction_id },
-      {
-        user: item.user,
-        account: accountId,
-        amount: Math.abs(transaction.amount),
-        type: transaction.amount < 0 ? 'income' : 'expense',
-        currency: transaction.iso_currency_code || transaction.unofficial_currency_code || 'USD',
-        category: mapPlaidCategory(transaction.personal_finance_category),
-        date: new Date(transaction.date),
-        note: transaction.name,
-        merchant: transaction.merchant_name || undefined,
-        pending: transaction.pending,
-        source: 'plaid',
-        plaidTransactionId: transaction.transaction_id,
-      },
-      { upsert: true }
-    )
+    const existing = await Expense.findOne({
+      plaidTransactionId: transaction.transaction_id,
+    }).select('isShared')
+
+    const fields = {
+      user: item.user,
+      account: accountId,
+      type: transaction.amount < 0 ? 'income' : 'expense',
+      currency: transaction.iso_currency_code || transaction.unofficial_currency_code || 'USD',
+      category: mapPlaidCategory(transaction.personal_finance_category),
+      date: new Date(transaction.date),
+      note: transaction.name,
+      merchant: transaction.merchant_name || undefined,
+      pending: transaction.pending,
+      source: 'plaid',
+      plaidTransactionId: transaction.transaction_id,
+    }
+    if (existing?.isShared) {
+      fields.sharedTotal = Math.abs(transaction.amount)
+    } else {
+      fields.amount = Math.abs(transaction.amount)
+    }
+
+    await Expense.findOneAndUpdate({ plaidTransactionId: transaction.transaction_id }, fields, {
+      upsert: true,
+    })
     imported += 1
   }
 

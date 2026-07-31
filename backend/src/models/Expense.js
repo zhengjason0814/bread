@@ -28,6 +28,8 @@ const expenseSchema = new mongoose.Schema(
     pending: { type: Boolean, default: false },
     anomalyDismissed: { type: Boolean, default: false },
     receipt: { type: receiptSchema, default: undefined },
+    isShared: { type: Boolean, default: false },
+    sharedTotal: { type: Number, default: undefined },
   },
   { timestamps: true }
 )

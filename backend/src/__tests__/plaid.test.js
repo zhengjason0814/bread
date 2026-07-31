@@ -276,6 +276,34 @@ describe('POST /api/plaid/sync', () => {
     expect(expenses.body.expenses).toHaveLength(1)
     expect(expenses.body.expenses[0]).toMatchObject({ category: 'Income', type: 'income' })
   })
+
+  it('preserves a manually split share when Plaid later reports the transaction as modified', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    await link(token)
+
+    const imported = await authed(request(app).get('/api/expenses'), token)
+    const starbucks = imported.body.expenses.find((e) => e.note === 'Starbucks')
+    await authed(request(app).post(`/api/expenses/${starbucks._id}/split`), token).send({
+      share: 5,
+    })
+
+    plaidClient.transactionsSync.mockResolvedValueOnce({
+      data: {
+        added: [],
+        modified: [{ ...outflowTransaction, amount: 13.75 }],
+        removed: [],
+        has_more: false,
+        next_cursor: 'cursor-2',
+      },
+    })
+    await authed(request(app).post('/api/plaid/sync'), token)
+
+    const after = await authed(request(app).get('/api/expenses'), token)
+    const resynced = after.body.expenses.find((e) => e.note === 'Starbucks')
+    expect(resynced.amount).toBe(5)
+    expect(resynced.isShared).toBe(true)
+    expect(resynced.sharedTotal).toBe(13.75)
+  })
 })
 
 describe('cross-user isolation', () => {

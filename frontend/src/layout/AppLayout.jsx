@@ -189,6 +189,18 @@ function AppLayout() {
     )
   }
 
+  async function handleSplitChange(updatedExpense) {
+    setExpenses((current) =>
+      current.map((expense) =>
+        expense._id === updatedExpense._id ? updatedExpense : expense,
+      ),
+    )
+    try {
+      const response = await client.get('/insights/anomalies')
+      setAnomalies(response.data.anomalies ?? [])
+    } catch {}
+  }
+
   async function handleNameChange(next) {
     const previous = name
     setName(next)
@@ -254,6 +266,7 @@ function AppLayout() {
     onSync: handleSync,
     onAccountDisconnected: handleAccountDisconnected,
     onReceiptChange: handleReceiptChange,
+    onSplitChange: handleSplitChange,
     onNameChange: handleNameChange,
     reload: loadData,
   }
