@@ -13,7 +13,11 @@ const PRIMARY_CATEGORY_MAP = {
   GOVERNMENT_AND_NON_PROFIT: 'Other',
 }
 
-function mapPlaidCategory(personalFinanceCategory) {
+function isZelle(transactionName) {
+  return typeof transactionName === 'string' && transactionName.toLowerCase().includes('zelle')
+}
+
+function mapPlaidCategory(personalFinanceCategory, transactionName) {
   const primary = personalFinanceCategory?.primary
   const detailed = personalFinanceCategory?.detailed || ''
 
@@ -28,11 +32,13 @@ function mapPlaidCategory(personalFinanceCategory) {
   }
 
   if (primary === 'TRANSFER_IN') {
-    return detailed.includes('ACCOUNT_TRANSFER') ? 'Transfer' : 'Deposit'
+    return detailed.includes('ACCOUNT_TRANSFER') || isZelle(transactionName) ? 'Transfer' : 'Deposit'
   }
 
   if (primary === 'TRANSFER_OUT') {
-    return detailed.includes('ACCOUNT_TRANSFER') ? 'Transfer' : 'Withdrawal'
+    return detailed.includes('ACCOUNT_TRANSFER') || isZelle(transactionName)
+      ? 'Transfer'
+      : 'Withdrawal'
   }
 
   return PRIMARY_CATEGORY_MAP[primary] || 'Other'

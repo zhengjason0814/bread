@@ -34,6 +34,27 @@ describe('mapPlaidCategory', () => {
     )
   })
 
+  it('categorizes Zelle transfers as Transfer even when detailed says deposit/withdrawal', () => {
+    expect(
+      mapPlaidCategory(
+        { primary: 'TRANSFER_IN', detailed: 'TRANSFER_IN_DEPOSIT' },
+        'Zelle payment from John Doe'
+      )
+    ).toBe('Transfer')
+    expect(
+      mapPlaidCategory(
+        { primary: 'TRANSFER_OUT', detailed: 'TRANSFER_OUT_WITHDRAWAL' },
+        'ZELLE PAYMENT TO JANE SMITH'
+      )
+    ).toBe('Transfer')
+  })
+
+  it('still uses Deposit/Withdrawal for non-Zelle transfers', () => {
+    expect(
+      mapPlaidCategory({ primary: 'TRANSFER_IN', detailed: 'TRANSFER_IN_DEPOSIT' }, 'ATM Deposit')
+    ).toBe('Deposit')
+  })
+
   it('maps direct 1:1 primaries', () => {
     expect(mapPlaidCategory({ primary: 'INCOME' })).toBe('Income')
     expect(mapPlaidCategory({ primary: 'TRANSPORTATION' })).toBe('Transportation')

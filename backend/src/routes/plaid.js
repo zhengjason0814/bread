@@ -80,7 +80,7 @@ async function syncItem(item) {
       account: accountId,
       type: transaction.amount < 0 ? 'income' : 'expense',
       currency: transaction.iso_currency_code || transaction.unofficial_currency_code || 'USD',
-      category: mapPlaidCategory(transaction.personal_finance_category),
+      category: mapPlaidCategory(transaction.personal_finance_category, transaction.name),
       date: new Date(transaction.date),
       note: transaction.name,
       merchant: transaction.merchant_name || undefined,
