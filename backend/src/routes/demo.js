@@ -45,6 +45,7 @@ router.post('/', demoLimiter, wakeMl, async (req, res) => {
   const user = await User.create({
     email: `demo+${randomUUID()}@bread.local`,
     passwordHash,
+    name: 'Demo Tester',
     isDemo: true,
     demoCreatedAt: new Date(),
   })
