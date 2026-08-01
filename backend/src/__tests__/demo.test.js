@@ -78,6 +78,7 @@ describe('POST /api/demo', () => {
     const me = await authed(request(app).get('/api/auth/me'), response.body.token)
     expect(me.status).toBe(200)
     expect(me.body.user.isDemo).toBe(true)
+    expect(me.body.user.name).toBe('Demo Tester')
 
     const created = await User.findById(me.body.user._id ?? (await User.findOne({ email: me.body.user.email }))._id)
     expect(await Expense.countDocuments({ user: created._id })).toBeGreaterThan(0)
