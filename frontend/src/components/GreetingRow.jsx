@@ -182,7 +182,7 @@ function GreetingRow({ accounts, expenses, budgets, baseCurrency, email, name, o
 
       {credits.length > 0 && (
         <Card className="flex flex-col justify-center flex-1 basis-[200px] min-w-[190px]">
-          <Label>Credit owed</Label>
+          <Label>Credit Balance</Label>
           <p className="font-display text-[30px] sm:text-[36px] leading-[1.1] mt-1.5 text-danger">
             {formatMoney(creditOwed, baseCurrency)}
           </p>
