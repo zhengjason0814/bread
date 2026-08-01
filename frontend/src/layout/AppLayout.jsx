@@ -224,11 +224,20 @@ function AppLayout() {
 
   async function handleBaseCurrencyChange(event) {
     const next = event.target.value
+    const previous = baseCurrency
     setBaseCurrency(next)
     setLoading(true)
     try {
       await client.patch('/auth/me', { baseCurrency: next })
       await loadData()
+    } catch (err) {
+      setBaseCurrency(previous)
+      if (err.response?.status === 401) {
+        clearToken()
+        navigate('/login')
+      } else {
+        setError('Could not change your currency')
+      }
     } finally {
       setLoading(false)
     }
