@@ -9,7 +9,7 @@ import { BUDGETABLE_CATEGORIES } from '../categories'
 import { formatMoney } from '../currencies'
 import { ListRowsSkeleton } from '../components/Skeletons'
 
-function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
+function BudgetRow({ status, baseCurrency, onSet, onRemove, onError }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(String(status.limit))
   const escapeCancelled = useRef(false)
@@ -24,11 +24,22 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
     if (Number.isFinite(amount) && amount > 0 && amount !== status.limit) {
       try {
         await onSet(status.category, amount)
+        onError('')
       } catch {
         setDraft(String(status.limit))
+        onError(`Could not save the ${status.category} budget`)
       }
     } else {
       setDraft(String(status.limit))
+    }
+  }
+
+  async function handleRemove() {
+    try {
+      await onRemove(status.category)
+      onError('')
+    } catch {
+      onError(`Could not remove the ${status.category} budget`)
     }
   }
 
@@ -84,11 +95,7 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
           limit
         </span>
         <span className="font-semibold">{formatMoney(status.spent, baseCurrency)}</span>
-        <Button
-          variant="ghost"
-          onClick={() => onRemove(status.category).catch(() => {})}
-          aria-label={`Remove ${status.category} budget`}
-        >
+        <Button variant="ghost" onClick={handleRemove} aria-label={`Remove ${status.category} budget`}>
           Remove
         </Button>
       </div>
@@ -102,7 +109,7 @@ function BudgetRow({ status, baseCurrency, onSet, onRemove }) {
   )
 }
 
-function AddBudgetForm({ available, onSet, onDone }) {
+function AddBudgetForm({ available, onSet, onDone, onError }) {
   const [category, setCategory] = useState(available[0] || '')
   const [amount, setAmount] = useState('')
 
@@ -112,8 +119,11 @@ function AddBudgetForm({ available, onSet, onDone }) {
     if (!category || !Number.isFinite(value) || value <= 0) return
     try {
       await onSet(category, value)
+      onError('')
       onDone()
-    } catch {}
+    } catch {
+      onError('Could not save that budget')
+    }
   }
 
   return (
@@ -153,6 +163,7 @@ function Budgets() {
   const { loading, error, ...data } = useOutletContext()
   const { expenses, baseCurrency, budgets, onBudgetSet, onBudgetRemoved } = data
   const [adding, setAdding] = useState(false)
+  const [actionError, setActionError] = useState('')
 
   const statuses = budgetStatuses(expenses, budgets)
   const available = BUDGETABLE_CATEGORIES.filter((name) => !(budgets && name in budgets))
@@ -176,8 +187,14 @@ function Budgets() {
         <p className="text-danger text-center">{error}</p>
       ) : (
         <>
+          {actionError && <p className="text-sm text-danger pb-2.5">{actionError}</p>}
           {adding && (
-            <AddBudgetForm available={available} onSet={onBudgetSet} onDone={() => setAdding(false)} />
+            <AddBudgetForm
+              available={available}
+              onSet={onBudgetSet}
+              onDone={() => setAdding(false)}
+              onError={setActionError}
+            />
           )}
           {statuses.length === 0 ? (
             !adding && (
@@ -193,6 +210,7 @@ function Budgets() {
                 baseCurrency={baseCurrency}
                 onSet={onBudgetSet}
                 onRemove={onBudgetRemoved}
+                onError={setActionError}
               />
             ))
           )}

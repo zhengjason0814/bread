@@ -96,8 +96,18 @@ async function convertAccountBalances(accounts, baseCurrency) {
   })
 }
 
+async function convertAmount(amount, fromCurrency, toCurrency, date) {
+  const from = (fromCurrency || 'USD').toUpperCase()
+  const to = (toCurrency || 'USD').toUpperCase()
+  if (from === to) return amount
+
+  const rates = await getRateTable(to, date)
+  const perTo = rates?.[from]
+  return perTo ? Math.round((amount / perTo) * 100) / 100 : null
+}
+
 async function __clearCache() {
   await cache.__flush()
 }
 
-module.exports = { convertExpenses, convertAccountBalances, __clearCache }
+module.exports = { convertExpenses, convertAccountBalances, convertAmount, __clearCache }

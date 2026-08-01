@@ -8,6 +8,7 @@ const { authLimiter } = require('../middleware/rateLimit')
 const wakeMl = require('../middleware/wakeMl')
 const { isAdminEmail } = require('../services/adminAccess')
 const { clearInsightsCache } = require('../services/insightsCache')
+const { convertAmount } = require('../services/exchangeRates')
 
 const router = express.Router()
 
@@ -107,32 +108,37 @@ router.get('/me', requireAuth, async (req, res) => {
 
 router.patch('/me', requireAuth, async (req, res) => {
   const { baseCurrency, name } = req.body
-  const updates = {}
 
-  if (baseCurrency !== undefined) {
-    if (!baseCurrency) {
-      return res.status(400).json({ error: 'baseCurrency is required' })
-    }
-    updates.baseCurrency = baseCurrency
-  }
-
-  if (name !== undefined) {
-    const trimmed = String(name).trim()
-    if (trimmed.length > MAX_NAME_LENGTH) {
-      return res.status(400).json({ error: `Name must be ${MAX_NAME_LENGTH} characters or fewer` })
-    }
-    updates.name = trimmed
-  }
-
-  if (Object.keys(updates).length === 0) {
+  if (baseCurrency === undefined && name === undefined) {
     return res.status(400).json({ error: 'Nothing to update' })
   }
+  if (baseCurrency !== undefined && !baseCurrency) {
+    return res.status(400).json({ error: 'baseCurrency is required' })
+  }
+  let trimmedName
+  if (name !== undefined) {
+    trimmedName = String(name).trim()
+    if (trimmedName.length > MAX_NAME_LENGTH) {
+      return res.status(400).json({ error: `Name must be ${MAX_NAME_LENGTH} characters or fewer` })
+    }
+  }
 
-  const user = await User.findByIdAndUpdate(req.userId, updates, {
-    returnDocument: 'after',
-  }).select('email name baseCurrency budgets createdAt')
+  const user = await User.findById(req.userId).select('email name baseCurrency budgets createdAt')
+  const baseCurrencyChanged = baseCurrency !== undefined && baseCurrency !== user.baseCurrency
 
-  if (updates.baseCurrency) {
+  if (baseCurrencyChanged && user.budgets.size > 0) {
+    const today = new Date().toISOString().slice(0, 10)
+    for (const [category, amount] of user.budgets) {
+      const converted = await convertAmount(amount, user.baseCurrency, baseCurrency, today)
+      if (converted !== null) user.budgets.set(category, converted)
+    }
+  }
+
+  if (baseCurrency !== undefined) user.baseCurrency = baseCurrency
+  if (name !== undefined) user.name = trimmedName
+  await user.save()
+
+  if (baseCurrencyChanged) {
     await clearInsightsCache(req.userId)
   }
 
