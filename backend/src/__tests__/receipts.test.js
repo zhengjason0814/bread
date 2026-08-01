@@ -173,7 +173,7 @@ describe('GET /api/expenses/:id/receipt', () => {
 
     expect(response.status).toBe(200)
     expect(response.body.url).toBe('https://signed.example/receipt')
-    expect(receiptStorage.getPresignedViewUrl).toHaveBeenCalledWith('receipts/u/e/fixed.jpg')
+    expect(receiptStorage.getPresignedViewUrl).toHaveBeenCalledWith('receipts/u/e/fixed.jpg', 'r.jpg')
   })
 
   it('returns 404 when the expense has no receipt', async () => {
