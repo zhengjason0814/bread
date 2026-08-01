@@ -156,6 +156,39 @@ describe('PATCH /api/auth/me', () => {
     })
   })
 
+  it('converts existing budget limits into the new base currency', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+
+    await authed(request(app).put('/api/budgets'), token).send({
+      category: 'Groceries',
+      amount: 500,
+    })
+
+    const patch = await authed(request(app).patch('/api/auth/me'), token).send({
+      baseCurrency: 'EUR',
+    })
+
+    expect(patch.status).toBe(200)
+    expect(patch.body.user.budgets.Groceries).toBe(400)
+  })
+
+  it('leaves budgets untouched when the base currency does not actually change', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+
+    await authed(request(app).put('/api/budgets'), token).send({
+      category: 'Groceries',
+      amount: 500,
+    })
+    global.fetch.mockClear()
+
+    const patch = await authed(request(app).patch('/api/auth/me'), token).send({
+      baseCurrency: 'USD',
+    })
+
+    expect(patch.body.user.budgets.Groceries).toBe(500)
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
   it('rejects a missing baseCurrency', async () => {
     const token = await signupAndGetToken('jane@example.com')
 
