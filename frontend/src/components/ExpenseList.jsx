@@ -7,6 +7,7 @@ import Tag from '../ui/Tag'
 import Button from '../ui/Button'
 import ReceiptCell from './ReceiptCell'
 import SplitExpenseDialog from './SplitExpenseDialog'
+import ConfirmDialog from '../ui/ConfirmDialog'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString('en-US', {
@@ -34,14 +35,13 @@ function ExpenseList({
     [accounts]
   )
   const [splittingExpense, setSplittingExpense] = useState(null)
+  const [deletingExpense, setDeletingExpense] = useState(null)
 
   const filtered = filterByType(expenses, filter)
 
-  function handleDeleteClick(expense) {
-    const label = `${expense.category} — ${formatMoney(expense.amount, expense.currency)}`
-    if (window.confirm(`Delete this expense?\n\n${label}`)) {
-      onDelete(expense._id)
-    }
+  function confirmDelete() {
+    onDelete(deletingExpense._id)
+    setDeletingExpense(null)
   }
 
   if (filtered.length === 0) {
@@ -132,7 +132,7 @@ function ExpenseList({
                       Split
                     </Button>
                   )}
-                  <Button variant="ghost" onClick={() => handleDeleteClick(expense)}>
+                  <Button variant="ghost" onClick={() => setDeletingExpense(expense)}>
                     Delete
                   </Button>
                 </div>
@@ -149,6 +149,18 @@ function ExpenseList({
           onChange={onSplitChange}
         />
       )}
+      <ConfirmDialog
+        open={!!deletingExpense}
+        title="Delete expense?"
+        message={
+          deletingExpense &&
+          `${deletingExpense.category} — ${formatMoney(deletingExpense.amount, deletingExpense.currency)}`
+        }
+        confirmLabel="Delete"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingExpense(null)}
+      />
     </>
   )
 }

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import ListPage, { ListRow } from '../components/ListPage'
 import ConnectBank from '../components/ConnectBank'
 import Button from '../ui/Button'
+import ConfirmDialog from '../ui/ConfirmDialog'
 import { formatMoney } from '../currencies'
 import { ListRowsSkeleton } from '../components/Skeletons'
 
@@ -22,15 +24,12 @@ function groupByConnection(accounts) {
 }
 
 function AccountGroup({ group, isDemo, onDisconnect }) {
-  function handleDisconnect() {
-    const label = group.accounts.length === 1 ? '1 account' : `${group.accounts.length} accounts`
-    if (
-      window.confirm(
-        `Disconnect ${group.institutionName}? This will remove its ${label} and all imported transactions. This can't be undone.`
-      )
-    ) {
-      onDisconnect(group.itemId)
-    }
+  const [confirming, setConfirming] = useState(false)
+  const label = group.accounts.length === 1 ? '1 account' : `${group.accounts.length} accounts`
+
+  function confirmDisconnect() {
+    setConfirming(false)
+    onDisconnect(group.itemId)
   }
 
   return (
@@ -38,7 +37,7 @@ function AccountGroup({ group, isDemo, onDisconnect }) {
       <div className="flex items-center gap-3.5 pt-4 pb-1">
         <span className="font-display text-[15px]">{group.institutionName}</span>
         {!isDemo && (
-          <Button variant="ghost" className="ml-auto" onClick={handleDisconnect}>
+          <Button variant="ghost" className="ml-auto" onClick={() => setConfirming(true)}>
             Disconnect
           </Button>
         )}
@@ -55,6 +54,15 @@ function AccountGroup({ group, isDemo, onDisconnect }) {
           }
         />
       ))}
+      <ConfirmDialog
+        open={confirming}
+        title={`Disconnect ${group.institutionName}?`}
+        message={`This will remove its ${label} and all imported transactions. This can't be undone.`}
+        confirmLabel="Disconnect"
+        danger
+        onConfirm={confirmDisconnect}
+        onCancel={() => setConfirming(false)}
+      />
     </div>
   )
 }

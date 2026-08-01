@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { usePlaidLink } from 'react-plaid-link'
 import client from '../api/client'
 import Button from '../ui/Button'
+import ConfirmDialog from '../ui/ConfirmDialog'
 
 function ConnectBank({ onConnected }) {
   const [linkToken, setLinkToken] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [duplicatePrompt, setDuplicatePrompt] = useState(null)
 
   async function exchange(publicToken, metadata, confirmDuplicate = false) {
     try {
@@ -20,19 +22,27 @@ function ConnectBank({ onConnected }) {
     } catch (err) {
       if (err.response?.status === 409) {
         const { institutionName } = err.response.data
-        if (
-          window.confirm(
-            `You already have ${institutionName} connected. Connect another login anyway?`
-          )
-        ) {
-          await exchange(publicToken, metadata, true)
-        } else {
-          setLinkToken(null)
-        }
+        setDuplicatePrompt({ publicToken, metadata, institutionName })
       } else {
         throw err
       }
     }
+  }
+
+  async function confirmDuplicateConnection() {
+    const { publicToken, metadata } = duplicatePrompt
+    setDuplicatePrompt(null)
+    setBusy(true)
+    try {
+      await exchange(publicToken, metadata, true)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function cancelDuplicateConnection() {
+    setDuplicatePrompt(null)
+    setLinkToken(null)
   }
 
   const { open, ready } = usePlaidLink({
@@ -64,9 +74,19 @@ function ConnectBank({ onConnected }) {
   }
 
   return (
-    <Button variant="primary" stopPropagation onClick={handleClick} disabled={busy}>
-      {busy ? 'Connecting…' : '+ Connect a bank'}
-    </Button>
+    <>
+      <Button variant="primary" stopPropagation onClick={handleClick} disabled={busy}>
+        {busy ? 'Connecting…' : '+ Connect a bank'}
+      </Button>
+      <ConfirmDialog
+        open={!!duplicatePrompt}
+        title="Already connected"
+        message={`You already have ${duplicatePrompt?.institutionName} connected. Connect another login anyway?`}
+        confirmLabel="Connect anyway"
+        onConfirm={confirmDuplicateConnection}
+        onCancel={cancelDuplicateConnection}
+      />
+    </>
   )
 }
 
