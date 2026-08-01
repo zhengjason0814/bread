@@ -29,20 +29,30 @@ def label_cadence(median_gap):
     return f"every ~{round(median_gap)} days"
 
 
-def build_series(rows):
-    amounts = np.array([row["amount"] for row in rows], dtype=float)
-    median_amount = float(np.median(amounts))
-    if median_amount <= 0:
-        return None
-    members = [
-        row
-        for row, amount in zip(rows, amounts)
-        if abs(amount - median_amount) <= AMOUNT_TOLERANCE * median_amount
-    ]
+def cluster_by_amount(rows):
+    if not rows:
+        return [], rows
+
+    best_members = []
+    for candidate in {row["amount"] for row in rows}:
+        if candidate <= 0:
+            continue
+        members = [
+            row for row in rows if abs(row["amount"] - candidate) <= AMOUNT_TOLERANCE * candidate
+        ]
+        if len(members) > len(best_members):
+            best_members = members
+
+    member_ids = {id(row) for row in best_members}
+    rest = [row for row in rows if id(row) not in member_ids]
+    return best_members, rest
+
+
+def build_series_from_members(members):
     if len(members) < MIN_OCCURRENCES:
         return None
 
-    members.sort(key=lambda row: row["date"])
+    members = sorted(members, key=lambda row: row["date"])
     dates = [date.fromisoformat(row["date"]) for row in members]
     gaps = np.array(
         [(later - earlier).days for earlier, later in zip(dates, dates[1:])], dtype=float
@@ -67,6 +77,20 @@ def build_series(rows):
     }
 
 
+def build_series(rows):
+    found = []
+    remaining = rows
+    while len(remaining) >= MIN_OCCURRENCES:
+        members, rest = cluster_by_amount(remaining)
+        if len(members) < MIN_OCCURRENCES:
+            break
+        built = build_series_from_members(members)
+        if built:
+            found.append(built)
+        remaining = rest
+    return found
+
+
 def detect_recurring(expenses):
     groups = {}
     for row in expenses:
@@ -79,9 +103,7 @@ def detect_recurring(expenses):
     for rows in groups.values():
         if len(rows) < MIN_OCCURRENCES:
             continue
-        built = build_series(rows)
-        if built:
-            series.append(built)
+        series.extend(build_series(rows))
 
     if not series:
         return {"status": "insufficient_data"}

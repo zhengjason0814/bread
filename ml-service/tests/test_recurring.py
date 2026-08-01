@@ -72,6 +72,18 @@ def test_same_day_duplicates_tolerated():
     assert result["series"][0]["cadence"] == "monthly"
 
 
+def test_same_merchant_two_distinct_subscription_amounts_both_detected():
+    rows = monthly_rows("Apple.com/Bill", 9.99) + monthly_rows("Apple.com/Bill", 49.99)
+    result = detect_recurring(rows)
+    assert result["status"] == "ok"
+    amounts = sorted(s["typical_amount"] for s in result["series"])
+    assert amounts == [9.99, 49.99]
+    cheap = next(s for s in result["series"] if s["typical_amount"] == 9.99)
+    pricey = next(s for s in result["series"] if s["typical_amount"] == 49.99)
+    assert len(cheap["expense_ids"]) == 4
+    assert len(pricey["expense_ids"]) == 4
+
+
 def test_series_sorted_by_typical_amount_desc():
     rows = monthly_rows("Netflix", 15.49) + monthly_rows("Rent", 1800.0)
     result = detect_recurring(rows)
