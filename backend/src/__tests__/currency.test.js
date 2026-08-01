@@ -95,6 +95,37 @@ describe('multi-currency conversion', () => {
     expect(list.body.expenses).toHaveLength(2)
     expect(global.fetch).toHaveBeenCalledTimes(1)
   })
+
+  it('fetches rates for several different dates in parallel, not one at a time', async () => {
+    const token = await signupAndGetToken('jane@example.com')
+    const dates = ['2026-01-05', '2026-02-10', '2026-03-15', '2026-04-20']
+    for (const date of dates) {
+      await authed(request(app).post('/api/expenses'), token).send({
+        amount: 10,
+        currency: 'EUR',
+        category: 'Groceries',
+        date,
+        note: 'x',
+        type: 'expense',
+      })
+    }
+    await __clearCache()
+
+    const delayMs = 60
+    global.fetch = jest.fn(async (url) => {
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+      const base = new URL(url).searchParams.get('base')
+      return { ok: true, json: async () => ({ base, rates: RATE_TABLES[base] || {} }) }
+    })
+
+    const start = Date.now()
+    const list = await authed(request(app).get('/api/expenses'), token)
+    const elapsed = Date.now() - start
+
+    expect(list.body.expenses).toHaveLength(dates.length)
+    expect(global.fetch).toHaveBeenCalledTimes(dates.length)
+    expect(elapsed).toBeLessThan(delayMs * 2)
+  })
 })
 
 describe('PATCH /api/auth/me', () => {

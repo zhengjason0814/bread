@@ -38,34 +38,48 @@ async function getRateTable(base, date) {
 
 async function convertExpenses(expenses, baseCurrency) {
   const base = (baseCurrency || 'USD').toUpperCase()
-  const converted = []
+  const plains = expenses.map((expense) => (expense.toObject ? expense.toObject() : expense))
 
-  for (const expense of expenses) {
-    const plain = expense.toObject ? expense.toObject() : expense
+  const neededDates = new Set()
+  for (const plain of plains) {
+    const native = (plain.currency || 'USD').toUpperCase()
+    if (native !== base) neededDates.add(toRateDate(plain.date))
+  }
+
+  const ratesByDate = new Map(
+    await Promise.all(
+      [...neededDates].map(async (date) => [date, await getRateTable(base, date)])
+    )
+  )
+
+  return plains.map((plain) => {
     const native = (plain.currency || 'USD').toUpperCase()
 
     let convertedAmount
     if (native === base) {
       convertedAmount = plain.amount
     } else {
-      const rates = await getRateTable(base, toRateDate(plain.date))
+      const rates = ratesByDate.get(toRateDate(plain.date))
       const perBase = rates?.[native]
       convertedAmount = perBase ? Math.round((plain.amount / perBase) * 100) / 100 : null
     }
 
-    converted.push({ ...plain, currency: native, convertedAmount, baseCurrency: base })
-  }
-
-  return converted
+    return { ...plain, currency: native, convertedAmount, baseCurrency: base }
+  })
 }
 
 async function convertAccountBalances(accounts, baseCurrency) {
   const base = (baseCurrency || 'USD').toUpperCase()
   const today = new Date().toISOString().slice(0, 10)
-  const converted = []
+  const plains = accounts.map((account) => (account.toObject ? account.toObject() : account))
 
-  for (const account of accounts) {
-    const plain = account.toObject ? account.toObject() : account
+  const needsRates = plains.some((plain) => {
+    const native = (plain.currency || 'USD').toUpperCase()
+    return typeof plain.balance === 'number' && native !== base
+  })
+  const rates = needsRates ? await getRateTable(base, today) : null
+
+  return plains.map((plain) => {
     const native = (plain.currency || 'USD').toUpperCase()
 
     let convertedBalance = null
@@ -73,16 +87,13 @@ async function convertAccountBalances(accounts, baseCurrency) {
       if (native === base) {
         convertedBalance = plain.balance
       } else {
-        const rates = await getRateTable(base, today)
         const perBase = rates?.[native]
         convertedBalance = perBase ? Math.round((plain.balance / perBase) * 100) / 100 : null
       }
     }
 
-    converted.push({ ...plain, convertedBalance, baseCurrency: base })
-  }
-
-  return converted
+    return { ...plain, convertedBalance, baseCurrency: base }
+  })
 }
 
 async function __clearCache() {
