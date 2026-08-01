@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const googleClient = require('../config/google')
 const requireAuth = require('../middleware/auth')
 const { authLimiter } = require('../middleware/rateLimit')
 const wakeMl = require('../middleware/wakeMl')
@@ -40,9 +41,53 @@ router.post('/login', authLimiter, wakeMl, async (req, res) => {
   }
 
   const user = await User.findOne({ email })
-  const valid = user && (await bcrypt.compare(password, user.passwordHash))
+  const valid = user && user.passwordHash && (await bcrypt.compare(password, user.passwordHash))
   if (!valid) {
     return res.status(401).json({ error: 'Invalid credentials' })
+  }
+
+  res.json({ token: issueToken(user) })
+})
+
+router.post('/google', authLimiter, wakeMl, async (req, res) => {
+  const { credential } = req.body
+  if (!credential) {
+    return res.status(400).json({ error: 'A Google credential is required' })
+  }
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(503).json({ error: 'Google sign-in is not configured' })
+  }
+
+  let payload
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    })
+    payload = ticket.getPayload()
+  } catch {
+    return res.status(401).json({ error: 'Could not verify that Google account' })
+  }
+
+  if (!payload?.email || !payload.email_verified) {
+    return res.status(401).json({ error: 'That Google account has no verified email address' })
+  }
+
+  const email = payload.email.toLowerCase()
+  const googleId = payload.sub
+  const googleName = (payload.name || '').trim().slice(0, MAX_NAME_LENGTH)
+
+  let user = (await User.findOne({ googleId })) || (await User.findOne({ email }))
+
+  if (user) {
+    const updates = {}
+    if (!user.googleId) updates.googleId = googleId
+    if (!user.name && googleName) updates.name = googleName
+    if (Object.keys(updates).length > 0) {
+      user = await User.findByIdAndUpdate(user._id, updates, { returnDocument: 'after' })
+    }
+  } else {
+    user = await User.create({ email, googleId, name: googleName })
   }
 
   res.json({ token: issueToken(user) })

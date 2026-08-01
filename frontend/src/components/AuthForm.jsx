@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import { saveToken } from '../auth'
 import { startDemo } from '../demo'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
+import GoogleSignInButton from './GoogleSignInButton'
 import breadMark from '../assets/bread-mark.svg'
 import { Field, Input } from '../ui/Field'
 
@@ -30,6 +31,22 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
       setSubmitting(false)
     }
   }
+
+  const handleGoogleCredential = useCallback(
+    async (credential) => {
+      setError('')
+      try {
+        const response = await client.post('/auth/google', { credential })
+        saveToken(response.data.token)
+        navigate('/')
+      } catch (err) {
+        setError(err.response?.data?.error ?? 'Could not sign in with Google')
+      }
+    },
+    [navigate],
+  )
+
+  const handleGoogleError = useCallback((message) => setError(message), [])
 
   async function handleDemo() {
     setError('')
@@ -90,6 +107,11 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
             >
               {demoLoading ? 'Starting demo…' : 'Try the demo'}
             </Button>
+
+            <GoogleSignInButton
+              onCredential={handleGoogleCredential}
+              onError={handleGoogleError}
+            />
 
             <p className="text-sm text-ink-secondary text-center">
               {footer.text}{' '}
