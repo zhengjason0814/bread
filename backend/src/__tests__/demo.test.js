@@ -26,7 +26,7 @@ describe('GET /api/auth/me isDemo flag', () => {
   })
 })
 
-const { seedDemoUser, clearDemoUserData, DEMO_EXPENSE_COUNT } = require('../services/demoData')
+const { seedDemoUser, clearDemoUserData, DEMO_EXPENSE_COUNT, TEMPLATE } = require('../services/demoData')
 const Expense = require('../models/Expense')
 const Account = require('../models/Account')
 const PlaidItem = require('../models/PlaidItem')
@@ -66,6 +66,18 @@ describe('demoData seed/clear', () => {
     expect(await PlaidItem.countDocuments({ user: user._id })).toBe(0)
     const reloaded = await User.findById(user._id)
     expect(reloaded.budgets.size).toBe(0)
+  })
+
+  it('always has a row dated today, so "this month" is never empty regardless of the calendar date', async () => {
+    expect(Math.min(...TEMPLATE.map((row) => row.daysAgo))).toBe(0)
+
+    const user = await User.create({ email: 'fresh@bread.local', passwordHash: 'x', isDemo: true })
+    await seedDemoUser(user._id)
+    const expenses = await Expense.find({ user: user._id })
+
+    const currentMonthKey = new Date().toISOString().slice(0, 7)
+    const monthsPresent = new Set(expenses.map((e) => e.date.toISOString().slice(0, 7)))
+    expect(monthsPresent.has(currentMonthKey)).toBe(true)
   })
 })
 

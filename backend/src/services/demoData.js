@@ -4,7 +4,7 @@ const Account = require('../models/Account')
 const PlaidItem = require('../models/PlaidItem')
 const User = require('../models/User')
 
-const MONTH_ANCHORS = [3, 33, 63, 93, 123]
+const MONTH_ANCHORS = [1, 31, 61, 91, 121]
 
 const RECURRING = [
   { note: 'Netflix', amount: 15.99, category: 'Entertainment' },
@@ -15,37 +15,37 @@ const RECURRING = [
 const SALARY = { note: 'Acme Payroll', amount: 3200, category: 'Income', type: 'income' }
 
 const ONE_OFFS = [
-  { daysAgo: 2, amount: 58.42, category: 'Groceries', note: 'Trader Joe\'s' },
-  { daysAgo: 6, amount: 12.75, category: 'Dining', note: 'Chipotle' },
-  { daysAgo: 9, amount: 4.85, category: 'Dining', note: 'Blue Bottle Coffee' },
-  { daysAgo: 11, amount: 89.3, category: 'Shopping/Retail', note: 'Uniqlo' },
-  { daysAgo: 14, amount: 34.6, category: 'Transportation', note: 'Shell Gas' },
-  { daysAgo: 17, amount: 21.4, category: 'Dining', note: 'Sweetgreen' },
-  { daysAgo: 19, amount: 76.18, category: 'Groceries', note: 'Safeway' },
-  { daysAgo: 23, amount: 15.5, category: 'Entertainment', note: 'AMC Theatres' },
-  { daysAgo: 27, amount: 42.99, category: 'Shopping/Retail', note: 'Target' },
-  { daysAgo: 31, amount: 9.25, category: 'Dining', note: 'Philz Coffee' },
-  { daysAgo: 38, amount: 63.18, category: 'Groceries', note: 'Whole Foods' },
-  { daysAgo: 41, amount: 27.8, category: 'Transportation', note: 'Uber' },
-  { daysAgo: 46, amount: 18.9, category: 'Dining', note: 'Shake Shack' },
-  { daysAgo: 52, amount: 120.0, category: 'Housing/Utilities', note: 'PG&E' },
-  { daysAgo: 58, amount: 54.32, category: 'Groceries', note: 'Trader Joe\'s' },
-  { daysAgo: 64, amount: 31.25, category: 'Shopping/Retail', note: 'Amazon' },
-  { daysAgo: 71, amount: 14.2, category: 'Dining', note: 'Chipotle' },
-  { daysAgo: 78, amount: 45.6, category: 'Transportation', note: 'Shell Gas' },
-  { daysAgo: 84, amount: 68.4, category: 'Groceries', note: 'Safeway' },
-  { daysAgo: 91, amount: 22.5, category: 'Entertainment', note: 'Steam' },
-  { daysAgo: 98, amount: 120.0, category: 'Housing/Utilities', note: 'PG&E' },
-  { daysAgo: 104, amount: 17.75, category: 'Dining', note: 'Sweetgreen' },
-  { daysAgo: 112, amount: 59.99, category: 'Shopping/Retail', note: 'Nike' },
-  { daysAgo: 119, amount: 48.2, category: 'Groceries', note: 'Whole Foods' },
-  { daysAgo: 21, amount: 37.5, category: 'Shopping/Retail', note: 'Etsy' },
-  { daysAgo: 88, amount: 52.99, category: 'Shopping/Retail', note: 'Best Buy' },
+  { daysAgo: 0, amount: 58.42, category: 'Groceries', note: 'Trader Joe\'s' },
+  { daysAgo: 4, amount: 12.75, category: 'Dining', note: 'Chipotle' },
+  { daysAgo: 7, amount: 4.85, category: 'Dining', note: 'Blue Bottle Coffee' },
+  { daysAgo: 9, amount: 89.3, category: 'Shopping/Retail', note: 'Uniqlo' },
+  { daysAgo: 12, amount: 34.6, category: 'Transportation', note: 'Shell Gas' },
+  { daysAgo: 15, amount: 21.4, category: 'Dining', note: 'Sweetgreen' },
+  { daysAgo: 17, amount: 76.18, category: 'Groceries', note: 'Safeway' },
+  { daysAgo: 21, amount: 15.5, category: 'Entertainment', note: 'AMC Theatres' },
+  { daysAgo: 25, amount: 42.99, category: 'Shopping/Retail', note: 'Target' },
+  { daysAgo: 29, amount: 9.25, category: 'Dining', note: 'Philz Coffee' },
+  { daysAgo: 36, amount: 63.18, category: 'Groceries', note: 'Whole Foods' },
+  { daysAgo: 39, amount: 27.8, category: 'Transportation', note: 'Uber' },
+  { daysAgo: 44, amount: 18.9, category: 'Dining', note: 'Shake Shack' },
+  { daysAgo: 50, amount: 120.0, category: 'Housing/Utilities', note: 'PG&E' },
+  { daysAgo: 56, amount: 54.32, category: 'Groceries', note: 'Trader Joe\'s' },
+  { daysAgo: 62, amount: 31.25, category: 'Shopping/Retail', note: 'Amazon' },
+  { daysAgo: 69, amount: 14.2, category: 'Dining', note: 'Chipotle' },
+  { daysAgo: 76, amount: 45.6, category: 'Transportation', note: 'Shell Gas' },
+  { daysAgo: 82, amount: 68.4, category: 'Groceries', note: 'Safeway' },
+  { daysAgo: 89, amount: 22.5, category: 'Entertainment', note: 'Steam' },
+  { daysAgo: 96, amount: 120.0, category: 'Housing/Utilities', note: 'PG&E' },
+  { daysAgo: 102, amount: 17.75, category: 'Dining', note: 'Sweetgreen' },
+  { daysAgo: 110, amount: 59.99, category: 'Shopping/Retail', note: 'Nike' },
+  { daysAgo: 117, amount: 48.2, category: 'Groceries', note: 'Whole Foods' },
+  { daysAgo: 19, amount: 37.5, category: 'Shopping/Retail', note: 'Etsy' },
+  { daysAgo: 86, amount: 52.99, category: 'Shopping/Retail', note: 'Best Buy' },
 ]
 
 const ANOMALIES = [
-  { daysAgo: 8, amount: 214.75, category: 'Dining', note: 'Anniversary Dinner' },
-  { daysAgo: 44, amount: 899.0, category: 'Shopping/Retail', note: 'Apple Store' },
+  { daysAgo: 6, amount: 214.75, category: 'Dining', note: 'Anniversary Dinner' },
+  { daysAgo: 42, amount: 899.0, category: 'Shopping/Retail', note: 'Apple Store' },
 ]
 
 const BUDGETS = { Dining: 250, Groceries: 600 }
@@ -65,6 +65,13 @@ function buildTemplate() {
   }
   for (const row of ONE_OFFS) rows.push({ ...row, type: 'expense' })
   for (const row of ANOMALIES) rows.push({ ...row, type: 'expense' })
+
+  if (Math.min(...rows.map((row) => row.daysAgo)) > 0) {
+    throw new Error(
+      'Demo TEMPLATE has no row at daysAgo: 0 — "this month" would render empty for the first days of every calendar month'
+    )
+  }
+
   return rows
 }
 
