@@ -82,7 +82,7 @@ function Transactions() {
             </div>
             {creditAccounts.length > 0 && (
               <div>
-                <Label>Credit owed</Label>
+                <Label>Credit balance</Label>
                 <p className="font-display text-[30px] sm:text-[40px] leading-tight mt-1.5 text-danger">
                   {formatMoney(creditOwed, baseCurrency)}
                 </p>
