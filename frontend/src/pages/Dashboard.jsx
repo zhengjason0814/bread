@@ -47,6 +47,7 @@ function Dashboard() {
     recurring,
     budgets,
     baseCurrency,
+    isDemo,
     onExpenseAdded,
     reload,
   } = data
@@ -214,7 +215,7 @@ function Dashboard() {
                 <Tag variant="sage" className="ml-auto">
                   {accounts.length} linked
                 </Tag>
-                <ConnectBank onConnected={reload} />
+                {!isDemo && <ConnectBank onConnected={reload} />}
               </div>
               {accounts.length === 0 ? (
                 <p className="text-sm text-ink-muted">

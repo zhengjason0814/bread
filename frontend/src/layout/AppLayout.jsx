@@ -111,6 +111,15 @@ function AppLayout() {
     }
   }, [navigate])
 
+  const reloadWithLoading = useCallback(async () => {
+    setLoading(true)
+    try {
+      await loadData()
+    } finally {
+      setLoading(false)
+    }
+  }, [loadData])
+
   const syncThenReload = useCallback(async () => {
     setSyncing(true)
     try {
@@ -216,8 +225,13 @@ function AppLayout() {
   async function handleBaseCurrencyChange(event) {
     const next = event.target.value
     setBaseCurrency(next)
-    await client.patch('/auth/me', { baseCurrency: next })
-    await loadData()
+    setLoading(true)
+    try {
+      await client.patch('/auth/me', { baseCurrency: next })
+      await loadData()
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleLogout() {
@@ -268,7 +282,7 @@ function AppLayout() {
     onReceiptChange: handleReceiptChange,
     onSplitChange: handleSplitChange,
     onNameChange: handleNameChange,
-    reload: loadData,
+    reload: reloadWithLoading,
   }
 
   return (

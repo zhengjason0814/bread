@@ -115,7 +115,7 @@ export function DashboardSkeleton() {
               <SkeletonLine className="w-48 h-4" />
               <Skeleton radius="rounded-full" className="w-36 h-9 ml-auto" />
             </div>
-            <TableSkeleton rows={6} columns={4} />
+            <TableSkeleton rows={5} columns={4} />
           </Card>
         </div>
       </div>
