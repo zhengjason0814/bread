@@ -30,10 +30,21 @@ async function putReceipt(buffer, key, contentType) {
   )
 }
 
-async function getPresignedViewUrl(key) {
-  return getSignedUrl(s3, new GetObjectCommand({ Bucket: BUCKET, Key: key }), {
-    expiresIn: VIEW_URL_TTL_SECONDS,
-  })
+function contentDisposition(filename) {
+  const safe = String(filename || '').replace(/[\r\n"]/g, '') || 'receipt'
+  return `inline; filename="${safe}"; filename*=UTF-8''${encodeURIComponent(safe)}`
+}
+
+async function getPresignedViewUrl(key, filename) {
+  return getSignedUrl(
+    s3,
+    new GetObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+      ResponseContentDisposition: contentDisposition(filename),
+    }),
+    { expiresIn: VIEW_URL_TTL_SECONDS }
+  )
 }
 
 async function deleteReceipt(key) {
@@ -45,6 +56,7 @@ module.exports = {
   putReceipt,
   getPresignedViewUrl,
   deleteReceipt,
+  contentDisposition,
   EXTENSION_BY_TYPE,
   ACCEPTED_TYPES,
 }

@@ -220,7 +220,7 @@ router.get('/:id/receipt', async (req, res) => {
   if (!expense || !expense.receipt) {
     return res.status(404).json({ error: 'Receipt not found' })
   }
-  const url = await receiptStorage.getPresignedViewUrl(expense.receipt.key)
+  const url = await receiptStorage.getPresignedViewUrl(expense.receipt.key, expense.receipt.filename)
   res.json({ url })
 })
 
