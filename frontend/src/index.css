@@ -67,6 +67,16 @@
   --animate-peek: peek 740ms ease-out 140ms both;
   --animate-wiggle: wiggle 620ms ease-out;
   --animate-ember: ember 4200ms ease-in-out infinite;
+  --animate-kenburns: kenburns 20s ease-in-out infinite alternate;
+
+  @keyframes kenburns {
+    0% {
+      transform: scale(1.25) translateX(-6%);
+    }
+    100% {
+      transform: scale(1.25) translateX(6%);
+    }
+  }
 
   @keyframes ember {
     0%,

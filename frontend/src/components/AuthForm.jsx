@@ -7,6 +7,7 @@ import Card from '../ui/Card'
 import Button from '../ui/Button'
 import GoogleSignInButton from './GoogleSignInButton'
 import breadMark from '../assets/bread-mark.svg'
+import authBackground from '../assets/auth-background.png'
 import { Field, Input } from '../ui/Field'
 
 function AuthForm({ title, endpoint, buttonLabel, footer }) {
@@ -63,14 +64,28 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
   }
 
   return (
-    <div className="min-h-screen bg-page flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-[420px]">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <img src={breadMark} alt="" className="w-12 h-12" />
-          <span className="font-display text-2xl">Bread</span>
-        </div>
+    <div className="relative min-h-screen flex items-center justify-center lg:justify-end px-4 lg:pr-[9%] xl:pr-[11%] py-10 overflow-hidden bg-page">
+      <img
+        src={authBackground}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover motion-safe:animate-kenburns"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-b from-ink/25 via-accent-deep/10 to-ink/40"
+      />
 
-        <Card className="px-7 py-7">
+      <div className="relative w-full max-w-[420px]">
+        <Card
+          glass
+          className="!rounded-full px-5 py-2.5 flex items-center justify-center gap-3 w-fit mx-auto mb-6"
+        >
+          <img src={breadMark} alt="" className="w-9 h-9" />
+          <span className="font-display text-2xl">Bread</span>
+        </Card>
+
+        <Card glass className="px-7 py-7">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <h1 className="font-display text-xl">{title}</h1>
 
@@ -103,7 +118,7 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
               variant="secondary"
               onClick={handleDemo}
               disabled={demoLoading}
-              className="w-full"
+              className="w-full !border-2 !border-ink/45 !bg-white/25 hover:!bg-white/40"
             >
               {demoLoading ? 'Starting demo…' : 'Try the demo'}
             </Button>
