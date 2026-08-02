@@ -1,4 +1,4 @@
-# Bread
+# 🍞 Bread
 
 A personal finance app capable of connecting to real bank data, tracking spending across multiple accounts and currencies, running with three machine-learning models to forecast spending, classify purchases, and flag unusual charges.
 
@@ -6,7 +6,7 @@ Built as a full-stack system across three services, with load balancing, caching
 
 ---
 
-## Demo video
+## 🎥 Demo video
 
 <!-- in progress -->
 
@@ -14,23 +14,23 @@ Built as a full-stack system across three services, with load balancing, caching
 
 ---
 
-## Table of contents
+## 📑 Table of contents
 
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Running the project](#running-the-project)
-- [Environment variables](#environment-variables)
-- [Testing](#testing)
-- [How it was built](#how-it-was-built)
-- [What I learned](#what-i-learned)
-- [Possible improvements](#possible-improvements)
+- [Features](#-features)
+- [Tech stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Running the project](#-running-the-project)
+- [Environment variables](#-environment-variables)
+- [Testing](#-testing)
+- [How it was built](#-how-it-was-built)
+- [What I learned](#-what-i-learned)
+- [Possible improvements](#-possible-improvements)
 
 ---
 
-## Features
+## ✨ Features
 
-### Accounts and transactions
+### 🏦 Accounts and transactions
 - **Bank integration via Plaid** — link real bank and credit accounts, with automatic transaction import using cursor-based sync
 - **Multi-account support** — checking and credit shown separately, since a credit balance is money owed rather than money held
 - **Multi-currency** — every transaction stores its native currency and converts to your chosen base currency using the exchange rate *on the transaction date*, so historical totals stay stable
@@ -38,27 +38,27 @@ Built as a full-stack system across three services, with load balancing, caching
 - **Bill splitting** — record only your real share of a group expense while keeping the original total visible
 - **Receipt photos** — upload receipts to private S3 storage, viewable through short-lived signed links
 
-### Machine learning
+### 🤖 Machine learning
 - **Spend forecasting** — three quantile-regression models produce a low/high range rather than a single number, because one figure implies precision the data doesn't support
-- **Category classification** — a pretrained TF-IDF + logistic regression model suggests a category from the merchant or note text, shown as a chip you confirm rather than applied silently
-- **Anomaly detection** — flags charges that break the pattern for their category using median-based robust statistics, which resist being skewed by the very outliers they're meant to catch
+- **Category classification** — a pretrained TF-IDF + logistic regression model suggests a category from the merchant or note text, shown as chips
+- **Anomaly detection** — flags charges that break the pattern for their category using median-based robust statistics, catching and accounting predictions from outliers
 - **Recurring detection** — finds subscriptions by clustering transactions on merchant and amount, then checking whether the gaps between them are consistent enough to be a real schedule
 
-### Insights
+### 📊 Insights
 - Category breakdown donut with month-by-month navigation
 - Month-over-month spending comparison
 - Per-category budgets with a warning tier before you go over
 - "Safe to spend" figure derived from remaining budget
 
-### Platform
+### 🔐 Platform
 - **JWT authentication** with bcrypt password hashing, plus **Google sign-in**
 - **Public demo mode** — one click provisions a temporary seeded account, rate-limited and auto-cleaned after 24 hours
-- **Admin dashboard** — aggregate platform stats behind an email allowlist
+- **Admin dashboard** — aggregate platform stats behind an allowlist
 - **Graceful degradation** — if the ML service is unavailable, insight cards say so and the rest of the app keeps working
 
 ---
 
-## Tech stack
+## 🧰 Tech stack
 
 | Layer | Technologies |
 |---|---|
@@ -72,19 +72,19 @@ Built as a full-stack system across three services, with load balancing, caching
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 Three independently deployable services. The browser only ever calls the Node API; the API brokers everything else.
 
 ![Bread system architecture](docs/architecture.png)
 
-**The key design decision:** the ML service is a stateless calculator. It never touches the database and never handles currency — Node loads the data, converts it, and sends plain numbers. That boundary is why the ML service has no migrations, no auth, and no model-staleness problem, and why the app stays fully usable when it's down.
+**A key design**The ML service is stateless, purely acting as a calculator for the apps given features whenever called. Bread stays working even if the ML-service has an issue.
 
 **Two flows bypass the API on the way out.** Google Identity and Plaid Link run in the browser and hand back short-lived tokens. Google's is a signed JWT the backend verifies against Google's public keys; Plaid's is a `public_token` that only becomes usable after a server-side exchange. In both cases the credential that actually matters never reaches the browser.
 
 ---
 
-## Running the project
+## ▶️ Running the project
 
 ### Prerequisites
 
@@ -123,7 +123,7 @@ npm run dev
 
 Then open `http://localhost:5173`. The Vite dev server proxies `/api` to the backend, so both run on the same origin.
 
-> The backend runs fine without the ML service — insight cards simply show as unavailable.
+> 💡 The backend runs fine without the ML service — insight cards simply show as unavailable.
 
 ### Option B — Docker Compose
 
@@ -133,11 +133,11 @@ docker compose up --build
 
 Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The app is served at `http://localhost:8080`, with Nginx load-balancing `/api` across the backend instances.
 
-> Compose publishes ports `8080` and `27017`. If you already have a local MongoDB container or backend running, stop them first to avoid a collision.
+> ⚠️ Compose publishes ports `8080` and `27017`. If you already have a local MongoDB container or backend running, stop them first to avoid a collision.
 
 ---
 
-## Environment variables
+## 🔑 Environment variables
 
 ### `backend/.env`
 
@@ -169,7 +169,7 @@ Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The ap
 | `VITE_GOOGLE_CLIENT_ID` | For Google sign-in | The Google button doesn't render without it |
 | `VITE_API_URL` | No | Defaults to `/api` (same-origin) |
 
-> `VITE_*` variables are baked in at build time. Changing one requires a rebuild, not just a restart.
+> ⚠️ `VITE_*` variables are baked in at build time. Changing one requires a rebuild, not just a restart.
 
 ### Third-party setup
 
@@ -179,7 +179,7 @@ Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The ap
 
 ---
 
-## Testing
+## 🧪 Testing
 
 ```bash
 cd backend && npm test               # 198 tests across 18 suites
@@ -190,7 +190,7 @@ Backend tests run against an in-memory MongoDB instance, and every third-party s
 
 ---
 
-## How it was built
+## 🔨 How it was built
 
 The project was built in phases, each ending in something demoable before the next began: authentication and manual entry, then Plaid integration and multi-currency, then the ML service, then insight features, then storage and access control, then containerization, then system-design work like load balancing and caching, and finally a design pass.
 
@@ -202,33 +202,38 @@ Throughout the project I used AI assistance to help teach me foreign concepts an
 
 ---
 
-## What I learned
+## 💡 What I learned
 
-**Timeouts are a budget, not a constant.** Every insight card in production showed "unavailable" while the ML service was completely healthy. The cause was a 3-second HTTP timeout calibrated against a local service responding in 20 milliseconds — but that endpoint refits three models per request, taking 2.6–4.6 seconds on production hardware. Worse, the cost scaled with how much history a user had, so new accounts worked while established ones silently failed. Different calls need different budgets, and a too-short timeout produces a failure that looks exactly like an outage.
+**⏱️ Timeouts need to fit the job**
 
-**You can't assume a third-party API will heal itself.** Transactions were importing as "Other" because Plaid enriches categories asynchronously. My first conclusion was that a later sync would fix them. That was wrong: Plaid only emitted update events for a small subset and enriched most of the backfill silently with no event at all, meaning cursor-based sync could never heal those rows. I only caught the mistake because I'd been de-duplicating by merchant name while investigating, which had hidden the real scale of it.
+Insight cards showed "unavailable" while the ML service was fine. The 3-second timeout came from my laptop, where the service answered in 20ms. In production the endpoint retrains three models per call, taking 2.6 to 4.6 seconds. It also got slower with more user history, so new accounts worked and old ones broke. A short timeout looks just like an outage.
 
-**Ownership belongs in the query.** Rather than fetching a record and then checking whether it belongs to the requesting user, every query is scoped by user ID directly. A request for someone else's data simply doesn't match, returning 404 — which also avoids leaking whether that record exists at all.
+**🔌 Don't count on someone else's API to fix itself**
+Transactions imported as "Other" because Plaid fills in categories later. I assumed the next sync would clean them up. It didn't. Plaid sent events for only a few and filled in the rest silently, so an event-driven sync could never catch those rows. Grouping by merchant name while debugging had hidden the real count.
 
-**Sequential awaits are a hidden performance cliff.** Currency conversion looped with an `await` per transaction. Because the cache is a remote managed instance, even a cache *hit* cost a network round trip — so the real cost was one round trip per transaction instead of one per unique date. Batching the lookups cut it from roughly 250ms to under 50ms.
+**🔒 Check ownership inside the query**
+Every query filters by user ID up front, rather than fetching a record and then checking who owns it. Ask for someone else's data and nothing matches, so you get a 404. You also can't tell if the record exists.
+
+**⚡ One await at a time adds up**
+Currency conversion awaited once per transaction. The cache sits on another machine, so even a hit cost a network trip, one per transaction instead of one per date. Batching took it from 250ms to under 50ms.
 
 ---
 
-## Possible improvements
+## 🚀 Possible improvements
 
-**Scaling**
+**📈 Scaling**
 - The app is capable of extending to more than just one replica, however free-tier deployment has limitations, given real resources the app is capable of horizontal scaling.
 - Spend forecasting refits three models on every request. Caching absorbs most of this, but a cheaper model or scheduled precomputation would remove the cost entirely.
 
-**Security hardening**
+**🛡️ Security hardening**
 - Deleted receipts are removed on a best-effort basis, so a failed delete leaves an unreferenced object in the bucket. An S3 lifecycle rule would close that gap.
 
-**Features**
+**🧩 Features**
 - Plaid webhooks for background freshness. The app currently re-syncs on every dashboard load, so data can't be stale from the user's perspective, but webhooks would cut redundant syncing.
 - Surface investment and loan account types, which are imported but not yet displayed.
 
 ---
 
-## License
+## 📄 License
 
 This project was built for portfolio and educational purposes.
