@@ -1,4 +1,4 @@
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { categoryColor } from '../categoryColors'
 import { compactMoney, formatMoney } from '../currencies'
 
@@ -47,17 +47,6 @@ function CategoryDonut({ slices, total, size, centerLabel, baseCurrency }) {
               <Cell key={slice.name} fill={categoryColor(slice.name).solid} />
             ))}
           </Pie>
-          <Tooltip
-            formatter={(value) => formatMoney(value, baseCurrency)}
-            contentStyle={{
-              background: '#ffffff',
-              border: '1px solid #d7ccc8',
-              borderRadius: 12,
-              fontSize: 13,
-              fontFamily: 'Figtree, system-ui, sans-serif',
-              boxShadow: '3px 3px 5px rgba(0,0,0,0.08)',
-            }}
-          />
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 grid place-items-center pointer-events-none text-center">
