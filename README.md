@@ -78,9 +78,11 @@ Three independently deployable services. The browser only ever calls the Node AP
 
 ![Bread system architecture](docs/architecture.png)
 
-**A key design**The ML service is stateless, purely acting as a calculator for the apps given features whenever called. Bread stays working even if the ML-service has an issue.
+**A key design**
+The ML service is stateless, purely acting as a calculator for the apps given features whenever called. Bread stays working even if the ML-service has an issue.
 
-**Two flows bypass the API on the way out.** Google Identity and Plaid Link run in the browser and hand back short-lived tokens. Google's is a signed JWT the backend verifies against Google's public keys; Plaid's is a `public_token` that only becomes usable after a server-side exchange. In both cases the credential that actually matters never reaches the browser.
+**Two flows bypass the API on the way out.**
+Google Identity and Plaid Link run in the browser and hand back short-lived tokens. Google's is a signed JWT the backend verifies against Google's public keys; Plaid's is a `public_token` that only becomes usable after a server-side exchange. In both cases the credential that actually matters never reaches the browser.
 
 ---
 
