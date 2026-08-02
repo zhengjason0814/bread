@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import { clearToken, isDemoSession } from '../auth'
 import { resetDemo, endDemo } from '../demo'
+import ColdStartNotice from '../components/ColdStartNotice'
 import DemoBanner from '../components/DemoBanner'
 import RateLimitBanner from '../components/RateLimitBanner'
 import { onRateLimited } from '../rateLimit'
@@ -313,6 +314,7 @@ function AppLayout() {
             onExpire={clearRateLimitNotice}
           />
         )}
+        <ColdStartNotice loading={loading} />
         {isDemo && <DemoBanner onReset={handleResetDemo} resetting={resetting} />}
         <Header
           baseCurrency={baseCurrency}
