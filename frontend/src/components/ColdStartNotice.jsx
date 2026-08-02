@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const SLOW_AFTER_MS = 3000
+const SLOW_AFTER_MS = 5000
 
 function ClockIcon({ className = '' }) {
   return (
