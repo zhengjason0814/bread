@@ -1,1 +1,234 @@
 # Bread
+
+A personal finance app capable of connecting to real bank data, tracking spending across multiple accounts and currencies, running with three machine-learning models to forecast spending, classify purchases, and flag unusual charges.
+
+Built as a full-stack system across three services, with load balancing, caching, containerization, and a public demo mode.
+
+---
+
+## Demo video
+
+<!-- in progress -->
+
+*Coming soon.*
+
+---
+
+## Table of contents
+
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Architecture](#architecture)
+- [Running the project](#running-the-project)
+- [Environment variables](#environment-variables)
+- [Testing](#testing)
+- [How it was built](#how-it-was-built)
+- [What I learned](#what-i-learned)
+- [Possible improvements](#possible-improvements)
+
+---
+
+## Features
+
+### Accounts and transactions
+- **Bank integration via Plaid** — link real bank and credit accounts, with automatic transaction import using cursor-based sync
+- **Multi-account support** — checking and credit shown separately, since a credit balance is money owed rather than money held
+- **Multi-currency** — every transaction stores its native currency and converts to your chosen base currency using the exchange rate *on the transaction date*, so historical totals stay stable
+- **Manual entry** — add expenses or income by hand, using the same 16-category system as imported transactions
+- **Bill splitting** — record only your real share of a group expense while keeping the original total visible
+- **Receipt photos** — upload receipts to private S3 storage, viewable through short-lived signed links
+
+### Machine learning
+- **Spend forecasting** — three quantile-regression models produce a low/high range rather than a single number, because one figure implies precision the data doesn't support
+- **Category classification** — a pretrained TF-IDF + logistic regression model suggests a category from the merchant or note text, shown as a chip you confirm rather than applied silently
+- **Anomaly detection** — flags charges that break the pattern for their category using median-based robust statistics, which resist being skewed by the very outliers they're meant to catch
+- **Recurring detection** — finds subscriptions by clustering transactions on merchant and amount, then checking whether the gaps between them are consistent enough to be a real schedule
+
+### Insights
+- Category breakdown donut with month-by-month navigation
+- Month-over-month spending comparison
+- Per-category budgets with a warning tier before you go over
+- "Safe to spend" figure derived from remaining budget
+
+### Platform
+- **JWT authentication** with bcrypt password hashing, plus **Google sign-in**
+- **Public demo mode** — one click provisions a temporary seeded account, rate-limited and auto-cleaned after 24 hours
+- **Admin dashboard** — aggregate platform stats behind an email allowlist
+- **Graceful degradation** — if the ML service is unavailable, insight cards say so and the rest of the app keeps working
+
+---
+
+## Tech stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19, Vite, Tailwind CSS v4, React Router 7, Recharts, Axios |
+| **Backend** | Node.js, Express 5, MongoDB (Mongoose 9), JWT, bcrypt, multer, ioredis |
+| **ML service** | Python 3.14, FastAPI, scikit-learn, NumPy, pandas, joblib, uvicorn |
+| **Infrastructure** | Docker, Docker Compose, Nginx, Redis, express-rate-limit |
+| **Third-party** | Plaid, AWS S3, Google Identity Services, Frankfurter (ECB exchange rates) |
+| **Testing** | Jest, supertest, mongodb-memory-server, pytest |
+| **Deployment** | Vercel (frontend), Render (backend + ML service), MongoDB Atlas, Redis Cloud |
+
+---
+
+## Architecture
+
+Three independently deployable services. The browser only ever calls the Node API; the API brokers everything else.
+
+![Bread system architecture](docs/architecture.png)
+
+**The key design decision:** the ML service is a stateless calculator. It never touches the database and never handles currency — Node loads the data, converts it, and sends plain numbers. That boundary is why the ML service has no migrations, no auth, and no model-staleness problem, and why the app stays fully usable when it's down.
+
+**Two flows bypass the API on the way out.** Google Identity and Plaid Link run in the browser and hand back short-lived tokens. Google's is a signed JWT the backend verifies against Google's public keys; Plaid's is a `public_token` that only becomes usable after a server-side exchange. In both cases the credential that actually matters never reaches the browser.
+
+---
+
+## Running the project
+
+### Prerequisites
+
+- Node.js 24+
+- Python 3.14+
+- MongoDB (local instance or an Atlas connection string)
+- Docker (optional — only for the containerized stack)
+
+### Option A — run services individually
+
+**1. Backend** (port 4000)
+
+```bash
+cd backend
+npm install
+# create .env and fill in the values listed below
+npm run dev
+```
+
+**2. ML service** (port 8000)
+
+```bash
+cd ml-service
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn app.main:app --reload --port 8000
+```
+
+**3. Frontend** (port 5173)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173`. The Vite dev server proxies `/api` to the backend, so both run on the same origin.
+
+> The backend runs fine without the ML service — insight cards simply show as unavailable.
+
+### Option B — Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The app is served at `http://localhost:8080`, with Nginx load-balancing `/api` across the backend instances.
+
+> Compose publishes ports `8080` and `27017`. If you already have a local MongoDB container or backend running, stop them first to avoid a collision.
+
+---
+
+## Environment variables
+
+### `backend/.env`
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `MONGO_URI` | Yes | MongoDB connection string |
+| `JWT_SECRET` | Yes | Secret for signing auth tokens |
+| `PORT` | No | Defaults to 4000 |
+| `PLAID_CLIENT_ID` | Yes | Plaid credentials |
+| `PLAID_SECRET` | Yes | Plaid credentials |
+| `PLAID_ENV` | Yes | `sandbox`, `development`, or `production` |
+| `ML_SERVICE_URL` | Yes | e.g. `http://localhost:8000` |
+| `REDIS_URL` | No | Caching is skipped entirely if unset |
+| `AWS_REGION` | For receipts | S3 bucket region |
+| `AWS_ACCESS_KEY_ID` | For receipts | Read by the AWS SDK credential chain |
+| `AWS_SECRET_ACCESS_KEY` | For receipts | Read by the AWS SDK credential chain |
+| `S3_BUCKET` | For receipts | Bucket name |
+| `GOOGLE_CLIENT_ID` | For Google sign-in | Verifies the ID token audience |
+| `ADMIN_EMAILS` | No | Comma-separated allowlist; nobody is admin if unset |
+| `FRONTEND_ORIGIN` | No | Comma-separated CORS origins for split-origin deploys |
+| `ML_INSIGHT_TIMEOUT_MS` | No | Defaults to 12000 |
+| `TRUST_PROXY_HOPS` | No | Defaults to 1 |
+| `AUTH_RATELIMIT_MAX`, `API_RATELIMIT_MAX`, `DEMO_RATELIMIT_MAX` | No | Override the default rate limits |
+
+### `frontend/.env`
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `VITE_GOOGLE_CLIENT_ID` | For Google sign-in | The Google button doesn't render without it |
+| `VITE_API_URL` | No | Defaults to `/api` (same-origin) |
+
+> `VITE_*` variables are baked in at build time. Changing one requires a rebuild, not just a restart.
+
+### Third-party setup
+
+- **Plaid** — create an account and use Sandbox credentials. The test login is `user_good` / `pass_good`.
+- **AWS S3** — create a private bucket with all Block Public Access settings enabled, and an IAM user granted only `GetObject`, `PutObject`, and `DeleteObject` on that bucket.
+- **Google sign-in** — create an OAuth 2.0 Web client and add your frontend origins (e.g. `http://localhost:5173`) under *Authorized JavaScript origins*. Leave redirect URIs empty and ignore the client secret — this uses the ID-token flow, which needs neither.
+
+---
+
+## Testing
+
+```bash
+cd backend && npm test               # 198 tests across 18 suites
+cd ml-service && .venv/bin/pytest    # 34 tests
+```
+
+Backend tests run against an in-memory MongoDB instance, and every third-party service (Plaid, S3, Redis, Google, the ML service) is mocked — so the suite never makes a network call or touches real infrastructure.
+
+---
+
+## How it was built
+
+The project was built in phases, each ending in something demoable before the next began: authentication and manual entry, then Plaid integration and multi-currency, then the ML service, then insight features, then storage and access control, then containerization, then system-design work like load balancing and caching, and finally a design pass.
+
+Developed on a test-based mindset, wrote failing tests, confirm the reason it fails is correct, and then implement the feature. This catches bugs that a test that was written after implementing might miss.
+
+Any feature deployed was thoroughly double checked even after successful automated tests. Load balancing was confirmed by manually checking server ID's rotate across replicas, and shared caching was confirmed by tracking the network headers of API requests, watching whether repeated requests on different replicas were a cache miss or hit for all. S3 permissions were also confirmed by ensuring the deleted object returns a specific error code, 403, which means that the S3 bucket and IAM policy and user have been set up correctly.
+
+Throughout the project I used AI assistance to help teach me foreign concepts and services, debugging, draft designs, and break down architectural trade-offs.
+
+---
+
+## What I learned
+
+**Timeouts are a budget, not a constant.** Every insight card in production showed "unavailable" while the ML service was completely healthy. The cause was a 3-second HTTP timeout calibrated against a local service responding in 20 milliseconds — but that endpoint refits three models per request, taking 2.6–4.6 seconds on production hardware. Worse, the cost scaled with how much history a user had, so new accounts worked while established ones silently failed. Different calls need different budgets, and a too-short timeout produces a failure that looks exactly like an outage.
+
+**You can't assume a third-party API will heal itself.** Transactions were importing as "Other" because Plaid enriches categories asynchronously. My first conclusion was that a later sync would fix them. That was wrong: Plaid only emitted update events for a small subset and enriched most of the backfill silently with no event at all, meaning cursor-based sync could never heal those rows. I only caught the mistake because I'd been de-duplicating by merchant name while investigating, which had hidden the real scale of it.
+
+**Ownership belongs in the query.** Rather than fetching a record and then checking whether it belongs to the requesting user, every query is scoped by user ID directly. A request for someone else's data simply doesn't match, returning 404 — which also avoids leaking whether that record exists at all.
+
+**Sequential awaits are a hidden performance cliff.** Currency conversion looped with an `await` per transaction. Because the cache is a remote managed instance, even a cache *hit* cost a network round trip — so the real cost was one round trip per transaction instead of one per unique date. Batching the lookups cut it from roughly 250ms to under 50ms.
+
+---
+
+## Possible improvements
+
+**Scaling**
+- The app is capable of extending to more than just one replica, however free-tier deployment has limitations, given real resources the app is capable of horizontal scaling.
+- Spend forecasting refits three models on every request. Caching absorbs most of this, but a cheaper model or scheduled precomputation would remove the cost entirely.
+
+**Security hardening**
+- Deleted receipts are removed on a best-effort basis, so a failed delete leaves an unreferenced object in the bucket. An S3 lifecycle rule would close that gap.
+
+**Features**
+- Plaid webhooks for background freshness. The app currently re-syncs on every dashboard load, so data can't be stale from the user's perspective, but webhooks would cut redundant syncing.
+- Surface investment and loan account types, which are imported but not yet displayed.
+
+---
+
+## License
+
+This project was built for portfolio and educational purposes.
