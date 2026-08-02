@@ -48,7 +48,7 @@ const ANOMALIES = [
   { daysAgo: 42, amount: 899.0, category: 'Shopping/Retail', note: 'Apple Store' },
 ]
 
-const BUDGETS = { Dining: 250, Groceries: 600 }
+const BUDGETS = { Dining: 250, Groceries: 600, Entertainment: 150, Transportation: 200 }
 
 function dateDaysAgo(days) {
   const now = Date.now()
