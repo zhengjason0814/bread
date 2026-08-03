@@ -203,8 +203,6 @@ Free-tier hosting puts a service to sleep once it has been idle for around fifte
 
 A few details worth knowing if you fork this:
 
-- GitHub cron only speaks UTC and knows nothing about daylight saving, so a fixed schedule would drift by an hour twice a year. The schedule instead covers both EDT and EST, and the job checks the real local time and exits early when it falls outside the window.
-- Ten-minute spacing is deliberate. It has to be shorter than the fifteen-minute idle timeout, and the gap leaves room for GitHub's scheduler running late.
 - The URL comes from a repository variable `ML_SERVICE_URL`, falling back to the deployed URL, so moving the service doesn't mean editing the workflow.
 - The first ping of the day is slow by design, so a single failure retries after 30 seconds before the run is marked failed.
 
