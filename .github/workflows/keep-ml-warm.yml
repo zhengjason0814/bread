@@ -1,0 +1,57 @@
+name: Keep ML service warm
+
+on:
+  schedule:
+    - cron: '*/10 12-16 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keep-ml-warm
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Skip outside 8 AM - 12 PM America/New_York
+        id: window
+        run: |
+          hour=$(TZ=America/New_York date +%-H)
+          now=$(TZ=America/New_York date '+%Y-%m-%d %H:%M %Z')
+          if [ "$hour" -lt 8 ] || [ "$hour" -ge 12 ]; then
+            echo "$now is outside the 08:00-11:59 window - nothing to do."
+            echo "in_window=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "$now is inside the window - pinging."
+            echo "in_window=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ping ML service health endpoint
+        if: steps.window.outputs.in_window == 'true'
+        env:
+          ML_SERVICE_URL: ${{ vars.ML_SERVICE_URL || 'https://bread-cpev.onrender.com' }}
+        run: |
+          set -uo pipefail
+          ping_once() {
+            curl -fsS -o /tmp/body.txt \
+                 -w '%{http_code} %{time_total}' \
+                 --max-time 180 "$ML_SERVICE_URL/health"
+          }
+
+          if result=$(ping_once); then
+            echo "OK  http=${result%% *}  ${result##* }s  body=$(cat /tmp/body.txt)"
+            exit 0
+          fi
+
+          echo "First ping failed, retrying in 30s..."
+          sleep 30
+          if result=$(ping_once); then
+            echo "OK on retry  http=${result%% *}  ${result##* }s  body=$(cat /tmp/body.txt)"
+            exit 0
+          fi
+
+          echo "ML service did not respond to two pings 30s apart."
+          exit 1
