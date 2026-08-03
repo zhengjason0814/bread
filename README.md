@@ -8,9 +8,11 @@ Built as a full-stack system across three services, with load balancing, caching
 
 ## 🎥 Demo video
 
-<!-- in progress -->
+[![Watch the Bread demo](frontend/src/assets/VideoDemo.poster.jpg)](frontend/src/assets/VideoDemo.mp4)
 
-*Coming soon.*
+A 45-second tour — the one-click demo account, dashboard, transactions, month-by-month charts, spend forecasting, anomaly detection, budgets and linked accounts.
+
+There is a second walkthrough inside the app itself, on the Accounts page, covering how to connect a bank through the Plaid sandbox.
 
 ---
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import ListPage, { ListRow } from '../components/ListPage'
 import ConnectBank from '../components/ConnectBank'
+import HowToConnectVideo from '../components/HowToConnectVideo'
 import Button from '../ui/Button'
 import ConfirmDialog from '../ui/ConfirmDialog'
 import { formatMoney } from '../currencies'
@@ -94,6 +95,8 @@ function Accounts() {
         )
       }
     >
+      {!loading && !error && <HowToConnectVideo defaultOpen={groups.length === 0} />}
+
       {loading ? (
         <ListRowsSkeleton />
       ) : error ? (

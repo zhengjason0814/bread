@@ -8,6 +8,7 @@ import Button from '../ui/Button'
 import GoogleSignInButton from './GoogleSignInButton'
 import breadMark from '../assets/bread-mark.svg'
 import authBackground from '../assets/auth-background.png'
+import LoginDemoVideo from './LoginDemoVideo'
 import { Field, Input } from '../ui/Field'
 
 function AuthForm({ title, endpoint, buttonLabel, footer }) {
@@ -64,7 +65,7 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center lg:justify-end px-4 lg:pr-[9%] xl:pr-[11%] py-10 overflow-hidden bg-page">
+    <div className="relative min-h-screen flex items-center justify-center gap-8 lg:gap-20 px-4 lg:px-10 xl:px-16 py-10 overflow-hidden bg-page">
       <img
         src={authBackground}
         alt=""
@@ -76,7 +77,9 @@ function AuthForm({ title, endpoint, buttonLabel, footer }) {
         className="absolute inset-0 bg-gradient-to-b from-ink/25 via-accent-deep/10 to-ink/40"
       />
 
-      <div className="relative w-full max-w-[420px]">
+      <LoginDemoVideo />
+
+      <div className="relative w-full max-w-[420px] flex-none">
         <Card
           glass
           className="!rounded-full px-5 py-2.5 flex items-center justify-center gap-3 w-fit mx-auto mb-6"
