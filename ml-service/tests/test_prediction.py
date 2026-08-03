@@ -1,4 +1,4 @@
-from app.prediction import predict_spend
+from app.prediction import QUANTILE_ALPHAS, predict_spend
 
 
 def steady_month(year, month, days, per_day):
@@ -55,3 +55,32 @@ def test_next_month_forecast_in_plausible_range():
     next_month = result["next_month"]
     assert next_month["low"] <= next_month["mid"] <= next_month["high"]
     assert 150 <= next_month["mid"] <= 450
+
+
+def build_uneven_history():
+    expenses = []
+    expenses += steady_month(2026, 3, 31, 10.0)
+    expenses += steady_month(2026, 4, 30, 10.0)
+    expenses += steady_month(2026, 5, 31, 20.0)
+    expenses += steady_month(2026, 6, 30, 42.0)
+    expenses += steady_month(2026, 7, 16, 10.0)
+    return expenses
+
+
+UNEVEN_MONTH_TOTALS = [310.0, 300.0, 620.0, 1260.0]
+
+
+def test_forecast_band_is_the_interquartile_range():
+    assert QUANTILE_ALPHAS == [0.25, 0.5, 0.75]
+
+
+def test_forecast_band_is_tighter_than_the_spread_of_past_months():
+    next_month = predict_spend(build_uneven_history(), "2026-07-16")["next_month"]
+    history_spread = max(UNEVEN_MONTH_TOTALS) - min(UNEVEN_MONTH_TOTALS)
+    band_width = next_month["high"] - next_month["low"]
+    assert band_width <= 0.6 * history_spread
+
+
+def test_forecast_band_contains_the_median_on_uneven_history():
+    band = predict_spend(build_uneven_history(), "2026-07-16")["next_month"]
+    assert band["low"] <= band["mid"] <= band["high"]

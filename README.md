@@ -22,6 +22,7 @@ Built as a full-stack system across three services, with load balancing, caching
 - [Running the project](#-running-the-project)
 - [Environment variables](#-environment-variables)
 - [Testing](#-testing)
+- [CI/CD](#-cicd)
 - [How it was built](#-how-it-was-built)
 - [What I learned](#-what-i-learned)
 - [Possible improvements](#-possible-improvements)
@@ -39,7 +40,7 @@ Built as a full-stack system across three services, with load balancing, caching
 - **Receipt photos** — upload receipts to private S3 storage, viewable through short-lived signed links
 
 ### 🤖 Machine learning
-- **Spend forecasting** — three quantile-regression models produce a low/high range rather than a single number, because one figure implies precision the data doesn't support
+- **Spend forecasting** — three quantile-regression models produce an interquartile range, the middle 50% of likely outcomes, rather than a single number, because one figure implies precision the data doesn't support
 - **Category classification** — a pretrained TF-IDF + logistic regression model suggests a category from the merchant or note text, shown as chips
 - **Anomaly detection** — flags charges that break the pattern for their category using median-based robust statistics, catching and accounting predictions from outliers
 - **Recurring detection** — finds subscriptions by clustering transactions on merchant and amount, then checking whether the gaps between them are consistent enough to be a real schedule
@@ -160,7 +161,7 @@ Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The ap
 | `GOOGLE_CLIENT_ID` | For Google sign-in | Verifies the ID token audience |
 | `ADMIN_EMAILS` | No | Comma-separated allowlist; nobody is admin if unset |
 | `FRONTEND_ORIGIN` | No | Comma-separated CORS origins for split-origin deploys |
-| `ML_INSIGHT_TIMEOUT_MS` | No | Defaults to 12000 |
+| `ML_INSIGHT_TIMEOUT_MS` | No | Defaults to 40000 |
 | `TRUST_PROXY_HOPS` | No | Defaults to 1 |
 | `AUTH_RATELIMIT_MAX`, `API_RATELIMIT_MAX`, `DEMO_RATELIMIT_MAX` | No | Override the default rate limits |
 
@@ -185,10 +186,29 @@ Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The ap
 
 ```bash
 cd backend && npm test               # 198 tests across 18 suites
-cd ml-service && .venv/bin/pytest    # 34 tests
+cd ml-service && .venv/bin/pytest    # 37 tests
 ```
 
 Backend tests run against an in-memory MongoDB instance, and every third-party service (Plaid, S3, Redis, Google, the ML service) is mocked — so the suite never makes a network call or touches real infrastructure.
+
+---
+
+## 🔄 CI/CD
+
+The frontend deploys to Vercel and the API and ML service deploy to Render, each building from the default branch.
+
+**Keeping the ML service awake** — `.github/workflows/keep-ml-warm.yml`
+
+Free-tier hosting puts a service to sleep once it has been idle for around fifteen minutes, and waking it back up takes roughly half a minute. A scheduled GitHub Actions job pings the ML service every ten minutes between 8 AM and 12 PM, so during those hours it is already running when someone opens the app.
+
+A few details worth knowing if you fork this:
+
+- GitHub cron only speaks UTC and knows nothing about daylight saving, so a fixed schedule would drift by an hour twice a year. The schedule instead covers both EDT and EST, and the job checks the real local time and exits early when it falls outside the window.
+- Ten-minute spacing is deliberate. It has to be shorter than the fifteen-minute idle timeout, and the gap leaves room for GitHub's scheduler running late.
+- The URL comes from a repository variable `ML_SERVICE_URL`, falling back to the deployed URL, so moving the service doesn't mean editing the workflow.
+- The first ping of the day is slow by design, so a single failure retries after 30 seconds before the run is marked failed.
+
+The workflow can also be triggered by hand from the Actions tab.
 
 ---
 

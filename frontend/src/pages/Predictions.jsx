@@ -76,7 +76,7 @@ function Predictions() {
                       {formatMoney(prediction.next_month.high, baseCurrency)}
                     </p>
                     <p className="text-[12px] text-ink-muted">
-                      the range {monthLabel(nextMonthKey)} is likely to land in
+                      the middle range {monthLabel(nextMonthKey)} is likely to land in
                     </p>
                   </div>
                 </div>
@@ -96,8 +96,8 @@ function Predictions() {
             {ready ? (
               <p className="text-sm text-ink-secondary">
                 {monthLabel(thisMonthKey)} is still in progress, so its bar counts only what you
-                have spent so far. The outlined block spans the range next month is likely to fall
-                in, rather than a single guess.
+                have spent so far. The outlined block spans the middle range next month is likely to
+                fall in, rather than a single guess.
               </p>
             ) : (
               <p className="text-sm text-ink-secondary">
