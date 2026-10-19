@@ -10,7 +10,7 @@ Built as a full-stack system across three services, with load balancing, caching
 
 [![Watch the Bread demo](frontend/src/assets/VideoDemo.poster.jpg)](frontend/src/assets/VideoDemo.mp4)
 
-A 45-second tour — the one-click demo account, dashboard, transactions, month-by-month charts, spend forecasting, anomaly detection, budgets and linked accounts.
+A demo of the app showing the account, dashboard, transactions, month-by-month charts, spend forecasting, anomaly detection, budgets and linked accounts.
 
 There is a second walkthrough inside the app itself, on the Accounts page, covering how to connect a bank through the Plaid sandbox.
 
@@ -180,7 +180,7 @@ Starts MongoDB, Redis, the ML service, three backend replicas, and Nginx. The ap
 
 - **Plaid** — create an account and use Sandbox credentials. The test login is `user_good` / `pass_good`.
 - **AWS S3** — create a private bucket with all Block Public Access settings enabled, and an IAM user granted only `GetObject`, `PutObject`, and `DeleteObject` on that bucket.
-- **Google sign-in** — create an OAuth 2.0 Web client and add your frontend origins (e.g. `http://localhost:5173`) under *Authorized JavaScript origins*. Leave redirect URIs empty and ignore the client secret — this uses the ID-token flow, which needs neither.
+- **Google sign-in** — create an OAuth 2.0 Web client and add your frontend origins (e.g. `http://localhost:5173`) under *Authorized JavaScript origins*. Leave redirect URIs empty and ignore the client secret, this uses the ID-token flow, which needs neither.
 
 ---
 
