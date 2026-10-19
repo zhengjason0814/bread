@@ -231,12 +231,15 @@ Throughout the project I used AI assistance to help teach me foreign concepts an
 Insight cards showed "unavailable" while the ML service was fine. The 3-second timeout came from my laptop, where the service answered in 20ms. In production the endpoint retrains three models per call, taking 2.6 to 4.6 seconds. It also got slower with more user history, so new accounts worked and old ones broke. A short timeout looks just like an outage.
 
 **🔌 Don't count on someone else's API to fix itself**
+
 Transactions imported as "Other" because Plaid fills in categories later. I assumed the next sync would clean them up. It didn't. Plaid sent events for only a few and filled in the rest silently, so an event-driven sync could never catch those rows. Grouping by merchant name while debugging had hidden the real count.
 
 **🔒 Check ownership inside the query**
+
 Every query filters by user ID up front, rather than fetching a record and then checking who owns it. Ask for someone else's data and nothing matches, so you get a 404. You also can't tell if the record exists.
 
 **⚡ One await at a time adds up**
+
 Currency conversion awaited once per transaction. The cache sits on another machine, so even a hit cost a network trip, one per transaction instead of one per date. Batching took it from 250ms to under 50ms.
 
 ---
