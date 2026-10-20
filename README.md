@@ -3,6 +3,7 @@
 A personal finance app capable of connecting to real bank data, tracking spending across multiple accounts and currencies, running with three machine-learning models to forecast spending, classify purchases, and flag unusual charges.
 
 Built as a full-stack system across three services, with load balancing, caching, containerization, and a public demo mode.
+[![Watch a one-minute video tour of bread](https://gitdiagram.com/video-badge.svg)](https://gitdiagram.com/zhengjason0814/bread/video)
 
 ---
 
